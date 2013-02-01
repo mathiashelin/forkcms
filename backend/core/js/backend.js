@@ -1873,7 +1873,7 @@ jsBackend.tooltip =
 
 		if($help.length > 0)
 		{
-			$help.tooltip({ effect: 'fade', relative: true }).dynamic();
+			$help.tooltip();
 		}
 	}
 }
