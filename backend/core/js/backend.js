@@ -821,28 +821,23 @@ jsBackend.controls =
 		$fullwidthSwitchLink = $('#fullwidthSwitch a');
 		$fullwidthSwitch = $fullwidthSwitchLink.parent();
 
-		$fullwidthSwitchLink.toggle(
+		$fullwidthSwitchLink.on(
+			'click',
 			function(e)
 			{
 				// prevent default behaviour
 				e.preventDefault();
 
-				// add class
-				$fullwidthSwitch.addClass('collapsed');
-
-				// toggle
-				$('#subnavigation, #pagesTree').fadeOut(250);
-			},
-			function(e)
-			{
-				// Stuff to do every *even* time the element is clicked;
-				e.preventDefault();
-
-				// remove class
-				$fullwidthSwitch.removeClass('collapsed');
-
-				// toggle
-				$('#subnavigation, #pagesTree').fadeIn(500);
+				if($fullwidthSwitch.hasClass('collapsed'))
+				{
+					$fullwidthSwitch.removeClass('collapsed');
+					$('#subnavigation, #pagesTree').fadeIn(500);
+				}
+				else
+				{
+					$fullwidthSwitch.addClass('collapsed');
+					$('#subnavigation, #pagesTree').fadeOut(250);
+				}
 			}
 		);
 	},
