@@ -215,11 +215,8 @@ jsBackend.layout =
 	// datagrid layout
 	dataGrid: function()
 	{
-		if(jQuery.browser.msie)
-		{
-			$('.dataGrid tr td:last-child').addClass('lastChild');
-			$('.dataGrid tr td:first-child').addClass('firstChild');
-		}
+		$('.dataGrid tr td:last-child').addClass('lastChild');
+		$('.dataGrid tr td:first-child').addClass('firstChild');
 
 		// dynamic striping
 		$('.dynamicStriping.dataGrid tr:nth-child(2n)').addClass('even');
