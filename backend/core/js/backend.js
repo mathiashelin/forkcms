@@ -1621,6 +1621,7 @@ jsBackend.layout =
 		$('.contentTitle').hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); });
 		$('.dataGrid td a').hover(function() { $(this).parent().addClass('hover'); }, function() { $(this).parent().removeClass('hover'); });
 
+		jsBackend.layout.showBrowserWarning();
 		jsBackend.layout.dataGrid();
 
 		if($('.dataFilter').length > 0) jsBackend.layout.dataFilter();
@@ -1653,11 +1654,9 @@ jsBackend.layout =
 	// datagrid layout
 	dataGrid: function()
 	{
-		if(jQuery.browser.msie)
-		{
-			$('.dataGrid tr td:last-child').addClass('lastChild');
-			$('.dataGrid tr td:first-child').addClass('firstChild');
-		}
+		// add lastChild class on last elements
+		$('.dataGrid tr td:last-child').addClass('lastChild');
+		$('.dataGrid tr td:first-child').addClass('firstChild');
 
 		// dynamic striping
 		$('.dynamicStriping.dataGrid tr:nth-child(2n)').addClass('even');
