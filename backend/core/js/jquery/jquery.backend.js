@@ -161,7 +161,7 @@
 			// append the button
 			$(this).parent().after('<div class="buttonHolder"><a href="#" data-id="' + id + '" class="generatePasswordButton button"><span>' + options.generateLabel + '</span></a></div>');
 
-			$('.generatePasswordButton').live('click', generatePassword);
+			$(document).on('click', '.generatePasswordButton', generatePassword);
 
 			function generatePassword(e)
 			{
@@ -613,7 +613,7 @@
 			});
 
 			// bind click on delete-button
-			$('.deleteButton-' + id).live('click', function(e)
+			$(document).on('click', '.deleteButton-' + id, function(e)
 			{
 				// dont submit
 				e.preventDefault();
@@ -912,7 +912,7 @@
 			});
 
 			// bind click on delete-button
-			$('.deleteButton-' + id).live('click', function(e)
+			$(document).on('click', '.deleteButton-' + id, function(e)
 			{
 				// dont submit
 				e.preventDefault();
@@ -1122,13 +1122,13 @@
 				e.stopPropagation();
 
 				if(options.maxItems !== null && elements.length >= options.maxItems) return;
-				
+
 				// add element
 				add();
 			});
 
 			// bind click on delete-button
-			$('.deleteButton-' + id).live('click', function(e)
+			$(document).on('click', '.deleteButton-' + id, function(e)
 			{
 				// dont submit
 				e.preventDefault();
@@ -1416,7 +1416,7 @@
 			});
 
 			// bind click on delete-button
-			$('.deleteButton-' + id).live('click', function(e)
+			$(document).on('click', '.deleteButton-' + id, function(e)
 			{
 				// dont submit
 				e.preventDefault();
@@ -1427,7 +1427,7 @@
 			});
 
 			// bind keypress on inputfields (we need to rebuild so new values are saved)
-			$('.inputField-' + id).live('keyup', function(e)
+			$(document).on('keyup', '.inputField-' + id, function(e)
 			{
 				// clear elements
 				elements = [];
