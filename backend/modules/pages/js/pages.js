@@ -195,7 +195,10 @@ jsBackend.pages.extras =
 			modal: true,
 			width: 940,
 			title: utils.string.ucfirst(jsBackend.locale.lbl('Editor')),
-			position: 'center',
+			position: {
+				my: 'center',
+				at: 'center'
+			},
 			buttons:
 			[
 				{
