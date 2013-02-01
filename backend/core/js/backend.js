@@ -1617,7 +1617,6 @@ jsBackend.layout =
 		$('.contentTitle').hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); });
 		$('.dataGrid td a').hover(function() { $(this).parent().addClass('hover'); }, function() { $(this).parent().removeClass('hover'); });
 
-		jsBackend.layout.showBrowserWarning();
 		jsBackend.layout.dataGrid();
 
 		if($('.dataFilter').length > 0) jsBackend.layout.dataFilter();
