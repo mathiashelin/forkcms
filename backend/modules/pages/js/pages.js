@@ -848,19 +848,17 @@ jsBackend.pages.tree =
 			themes: {
 				theme: 'fork'
 			},
-//			opened: openedIds,
+			core: {
+				initially_open: openedIds,
+				strings: {
+					loading: utils.string.ucfirst(jsBackend.locale.lbl('Loading'))
+				}
+			},
 //			rules:
 //			{
 //				multiple: false,
 //				multitree: 'all',
 //				drag_copy: false
-//			},
-//			lang: { loading: utils.string.ucfirst(jsBackend.locale.lbl('Loading')) },
-//			callback:
-//			{
-//				beforemove: jsBackend.pages.tree.beforeMove,
-//				onselect: jsBackend.pages.tree.onSelect,
-//				onmove: jsBackend.pages.tree.onMove
 //			},
 //			types:
 //			{
@@ -875,11 +873,13 @@ jsBackend.pages.tree =
 //				'redirect': { icon: { position: '0 -264px' } },
 //				'direct_action': { max_children: 0, icon: { position: '0 -280px' } }
 //			},
-			plugins:
-			{
-				cookie: { prefix: 'jstree_', types: { selected: false }, options: { path: '/' } }
-			}
+//			plugins:
+// 			{
+//				cookie: { prefix: 'jstree_', types: { selected: false }, options: { path: '/' } }
+//			}
 		};
+
+		$('#tree div').bind('select_node.jstree', jsBackend.pages.tree.onSelect);
 
 		// create tree
 		$('#tree div').jstree(options);
@@ -946,11 +946,11 @@ jsBackend.pages.tree =
 	},
 
 	// when an item is selected
-	onSelect: function(node, tree)
+	onSelect: function(e, data)
 	{
 		// get current and new URL
 		var currentPageURL = window.location.pathname + window.location.search;
-		var newPageURL = $(node).find('a').prop('href');
+		var newPageURL = $(data.rslt.obj).find('a').attr('href');
 
 		// only redirect if destination isn't the current one.
 		if(typeof newPageURL != 'undefined' && newPageURL != currentPageURL) window.location = newPageURL;
