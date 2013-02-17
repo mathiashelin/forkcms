@@ -70,7 +70,7 @@ class BackendPagesEdit extends BackendBaseActionEdit
 		$this->loadData();
 
 		// add js
-		$this->header->addJS('jquery.tree.js', null, false);
+		$this->header->addJS('jstree/jquery.jstree.js', null, false);
 
 		// get the templates
 		$this->templates = BackendExtensionsModel::getTemplates();

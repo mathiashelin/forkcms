@@ -29,7 +29,7 @@ class BackendPagesIndex extends BackendBaseActionIndex
 		parent::execute();
 
 		// add js
-		$this->header->addJS('jquery.tree.js', null, false);
+		$this->header->addJS('jstree/jquery.jstree.js', null, false);
 
 		// check if the cached files exists
 		if(!SpoonFile::exists(PATH_WWW . '/frontend/cache/navigation/keys_' . BackendLanguage::getWorkingLanguage() . '.php')) BackendPagesModel::buildCache(BL::getWorkingLanguage());
