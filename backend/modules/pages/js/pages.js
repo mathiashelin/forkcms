@@ -915,6 +915,11 @@ jsBackend.pages.tree =
 					check_move: jsBackend.pages.tree.beforeMove
 				}
 			},
+			dnd: {
+				drop_finish: function(data) {
+					alert('drop_finish');
+				}
+			},
 			plugins: [
 				'themes',
 				'html_data',
@@ -925,6 +930,7 @@ jsBackend.pages.tree =
 		};
 
 		$('#tree div').bind('select_node.jstree', jsBackend.pages.tree.onSelect);
+		$('#tree div').bind('move_node.jstree', jsBackend.pages.tree.onMove);
 		$('#tree div').bind('loaded.jstree', function() {
 			if(typeof selectedId != 'undefined') {
 				$('#' + selectedId).addClass('selected');
@@ -1007,17 +1013,15 @@ jsBackend.pages.tree =
 	},
 
 	// when an item is moved
-	onMove: function(node, refNode, type, tree, rollback)
+	onMove: function(e, data)
 	{
-		// get the tree
-		var tree = tree.container.data('tree');
-
-		// get pageID that has to be moved
-		var currentPageID = $(node).prop('id').replace('page-', '');
-
-		// get pageID wheron the page has been dropped
-		if(typeof refNode == 'undefined') droppedOnPageID = 0;
-		else var droppedOnPageID = $(refNode).prop('id').replace('page-', '')
+		var rollback = data.rlbk;
+		var tree = data.inst.get_container().data('tree');
+		var currentPageID = $(data.rslt.o).prop('id').replace('page-', '');
+		var droppedOnPageID = $(data.rslt.r).prop('id').replace('page-', '');
+		var type = data.rslt.p;
+		if(type == 'last') type = 'inside';
+		if(type == 'first') type = 'inside';
 
 		// make the call
 		$.ajax(
@@ -1040,7 +1044,7 @@ jsBackend.pages.tree =
 					jsBackend.messages.add('error', jsBackend.locale.err('CantBeMoved'));
 
 					// rollback
-					$.tree.rollback(rollback);
+					$.jstree.rollback(rollback);
 				}
 				else
 				{

@@ -1387,7 +1387,15 @@ class BackendPagesModel
 			);
 
 			// update
-			$db->update('pages', array('parent_id' => $newParent, 'sequence' => $newSequence, 'type' => $newType), 'id = ? AND language = ? AND status = ?', array($id, $language, 'active'));
+			$db->update('pages',
+				array(
+					'parent_id' => $newParent,
+					'sequence' => $newSequence,
+					'type' => $newType
+				),
+				'id = ? AND language = ? AND status = ?',
+				array($id, $language, 'active')
+			);
 		}
 
 		// calculate new sequence for items that should be moved after
