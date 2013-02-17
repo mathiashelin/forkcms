@@ -824,9 +824,6 @@ jsBackend.pages.tree =
 	{
 		if($('#tree div').length == 0) return false;
 
-//		// add "treeHidden"-class on leafs that are hidden, only for browsers that don't support opacity
-//		if(!jQuery.support.opacity) $('#tree ul li[rel="hidden"]').addClass('treeHidden');
-//
 		var openedIds = [];
 		if(typeof pageID != 'undefined')
 		{
@@ -854,45 +851,87 @@ jsBackend.pages.tree =
 					loading: utils.string.ucfirst(jsBackend.locale.lbl('Loading'))
 				}
 			},
-//			rules:
-//			{
-//				multiple: false,
-//				multitree: 'all',
-//				drag_copy: false
-//			},
-//			types:
-//			{
-//				'default': { renameable: false, deletable: false, creatable: false, icon: { image: '/backend/modules/pages/js/jstree/themes/fork/icons.gif' } },
-//				'page': { icon: { position: '0 -80px' } },
-//				'folder': { icon: { position: false } },
-//				'hidden': { icon: { position: false } },
-//				'home': { draggable: false, icon: { position: '0 -112px' } },
-//				'pages': { icon: { position: false } },
-//				'error': { draggable: false, max_children: 0, icon: { position: '0 -160px' } },
-//				'sitemap': { max_children: 0, icon: { position: '0 -176px' } },
-//				'redirect': { icon: { position: '0 -264px' } },
-//				'direct_action': { max_children: 0, icon: { position: '0 -280px' } }
-//			},
-//			plugins:
-// 			{
-//				cookie: { prefix: 'jstree_', types: { selected: false }, options: { path: '/' } }
-//			}
+			types: {
+				valid_children: 'all',
+				types:
+				{
+					'default': {
+						icon: {
+							image: '/backend/modules/pages/js/jstree/themes/fork/icons.gif'
+						}
+					},
+					'page': {
+						icon: {
+							position: '0 -80px'
+						}
+					},
+					'folder': {
+						icon: {
+							position: '0 -80px'
+						}
+					},
+					'hidden': {
+						icon: {
+							position: '0 -80px'
+						}
+					},
+					'home': {
+						icon: {
+							position: '0 -112px'
+						}
+					},
+					'pages': {
+						icon: {
+							position: '0 -80px'
+						}
+					},
+					'error': {
+						icon: {
+							position: '0 -160px'
+						}
+					},
+					'sitemap': {
+						icon: {
+							position: '0 -176px'
+						}
+					},
+					'redirect': {
+						icon: {
+							position: '0 -264px'
+						}
+					},
+					'direct_action': {
+						icon: {
+							position: '0 -280px'
+						}
+					}
+				}
+			},
+			plugins: [
+				'themes',
+				'html_data',
+				'types'
+			]
 		};
 
 		$('#tree div').bind('select_node.jstree', jsBackend.pages.tree.onSelect);
+		$('#tree div').bind('loaded.jstree', function() {
+			if(typeof selectedId != 'undefined') {
+				$('#' + selectedId).addClass('selected');
+			}
+
+			// layout fix for the tree
+			$('.jstree li.open').each(function() {
+				// if the so-called open-element doesn't have any childs we should replace the open-class.
+				if($(this).find('ul').length == 0) $(this).removeClass('jstree-open').addClass('jstree-leaf');
+			});
+
+			// add "treeHidden"-class on leafs that are hidden, only for browsers that don't support opacity
+			$('.jstree li[rel="hidden"]').addClass('treeHidden');
+		});
 
 		// create tree
 		$('#tree div').jstree(options);
-
-//		// layout fix for the tree
-//		$('.tree li.open').each(function()
-//		{
-//			// if the so-called open-element doesn't have any childs we should replace the open-class.
-//			if($(this).find('ul').length == 0) $(this).removeClass('open').addClass('leaf');
-//		});
-//
-//		// set the item selected
-//		if(typeof selectedId != 'undefined') $('#' + selectedId).addClass('selected');
 	},
 
 	// before an item will be moved we have to do some checks
