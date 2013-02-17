@@ -886,11 +886,13 @@ jsBackend.pages.tree =
 						}
 					},
 					'error': {
+						max_children: 0,
 						icon: {
 							position: '0 -160px'
 						}
 					},
 					'sitemap': {
+						max_children: 0,
 						icon: {
 							position: '0 -176px'
 						}
@@ -901,16 +903,24 @@ jsBackend.pages.tree =
 						}
 					},
 					'direct_action': {
+						max_children: 0,
 						icon: {
 							position: '0 -280px'
 						}
 					}
 				}
 			},
+			crrm: {
+				move: {
+					check_move: jsBackend.pages.tree.beforeMove
+				}
+			},
 			plugins: [
 				'themes',
 				'html_data',
-				'types'
+				'types',
+			    'crrm',
+			    'dnd'
 			]
 		};
 
@@ -935,12 +945,13 @@ jsBackend.pages.tree =
 	},
 
 	// before an item will be moved we have to do some checks
-	beforeMove: function(node, refNode, type, tree)
+	beforeMove: function(data)
 	{
 		// get pageID that has to be moved
-		var currentPageID = $(node).prop('id').replace('page-', '');
-		if(typeof refNode == 'undefined') parentPageID = 0;
-		else var parentPageID = $(refNode).prop('id').replace('page-', '')
+		var currentPageID = $(data.o).prop('id').replace('page-', '');
+		var parentPageID = $(data.r).prop('id').replace('page-', '')
+		var type = $(data.p);
+		if(type == 'first') type = 'last';
 
 		// home is a special item
 		if(parentPageID == '1')
