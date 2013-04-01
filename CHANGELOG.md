@@ -4,6 +4,9 @@ Improvements:
 
 * Symfony: upgrade components to 2.2.
 * Core: isInstalledModule() added in BackendModel. Thx to Jeroen Desloovere.
+* Core: Upgraded jQuery to 1.9
+* Core: Upgraded jQueryUI to 1.10
+* Core: Upgraded Highcharts to 2.3.5
 
 Bugfixes:
 
@@ -60,9 +63,6 @@ Improvements:
 * Pages: Widget had invalid parent url
 * Blog: Show always Open Graph Tags
 * Pages: BackendPagesModel::copy() added, so it can be called from elsewhere. Thx to Jeroen Desloovere.
-* Core: Upgraded jQuery to 1.9
-* Core: Upgraded jQueryUI to 1.10
-* Core: Upgraded Highcharts to 2.3.5
 
 Bugfixes:
 
