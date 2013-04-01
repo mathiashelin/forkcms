@@ -447,22 +447,22 @@ jsBackend.analytics.resize =
 			timeout = false;
 			if($chartPieChart.length > 0)
 			{
-				$chartPieChart.html('&nbsp;');
+				jsBackend.analytics.chartPieChart.destroy();
 				jsBackend.analytics.chartPieChart.create();
 			}
 			if($chartDoubleMetricPerDay.length > 0)
 			{
-				$chartDoubleMetricPerDay.html('&nbsp;');
+				jsBackend.analytics.chartDoubleMetricPerDay.destroy();
 				jsBackend.analytics.chartDoubleMetricPerDay.create();
 			}
 			if($chartSingleMetricPerDay.length > 0)
 			{
-				$chartSingleMetricPerDay.html('&nbsp;');
+				jsBackend.analytics.chartSingleMetricPerDay.destroy();
 				jsBackend.analytics.chartSingleMetricPerDay.create();
 			}
 			if($chartWidget.length > 0)
 			{
-				$chartWidget.html('&nbsp;');
+				jsBackend.analytics.chartWidget.destroy();
 				jsBackend.analytics.chartWidget.create();
 			}
 		}
