@@ -56,7 +56,7 @@ class InstallerStep extends KernelLoader
 	 */
 	public function __construct($step)
 	{
-		// set setp
+		// set setup
 		$this->step = (int) $step;
 	}
 
@@ -93,7 +93,7 @@ class InstallerStep extends KernelLoader
 	{
 		$stepTemplate = __DIR__ . '/../layout/templates/step_' . $this->step . '.tpl';
 		$stepContent = $this->tpl->getContent($stepTemplate, false, true);
-		return new Response($stepContent, 200, SpoonHttp::getHeadersList());
+		return new Response($stepContent, 200);
 	}
 
 	/**

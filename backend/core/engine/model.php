@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../../app/BaseModel.php';
  *
  * @author Tijs Verkoyen <tijs@sumocoders.be>
  * @author Dieter Vanden Eynde <dieter.vandeneynde@netlash.com>
- * @author Reclamebureau Siesqo <info@siesqo.be>
+ * @author Jeroen Desloovere <jeroen@siesqo.be>
  */
 class BackendModel extends BaseModel
 {
@@ -58,7 +58,7 @@ class BackendModel extends BaseModel
 		// get last chunk
 		$last = $chunks[$count - 1];
 
-		// is nummeric
+		// is numeric
 		if(SpoonFilter::isNumeric($last))
 		{
 			// remove last chunk
@@ -149,7 +149,7 @@ class BackendModel extends BaseModel
 			$i++;
 		}
 
-		// some applications aren't real seperate applications, they are virtual applications inside the backend.
+		// some applications aren't real separate applications, they are virtual applications inside the backend.
 		$namedApplication = NAMED_APPLICATION;
 		if(in_array($namedApplication, array('backend_direct', 'backend_ajax', 'backend_js', 'backend_cronjob'))) $namedApplication = 'backend';
 
@@ -187,7 +187,7 @@ class BackendModel extends BaseModel
 		}
 
 		// get extras
-		$extras = (array) BackendModel::getDB(true)->getRecords($query, $parameters);
+		$extras = (array) BackendModel::getContainer()->get('database')->getRecords($query, $parameters);
 
 		// loop found extras
 		foreach($extras as $extra)
@@ -221,17 +221,17 @@ class BackendModel extends BaseModel
 		// delete the blocks
 		if($deleteBlock)
 		{
-			BackendModel::getDB(true)->delete('pages_blocks', 'extra_id = ?', $id);
+			BackendModel::getContainer()->get('database')->delete('pages_blocks', 'extra_id = ?', $id);
 		}
 
 		// unset blocks
 		else
 		{
-			BackendModel::getDB(true)->update('pages_blocks', array('extra_id' => null), 'extra_id = ?', $id);
+			BackendModel::getContainer()->get('database')->update('pages_blocks', array('extra_id' => null), 'extra_id = ?', $id);
 		}
 
 		// delete extra
-		BackendModel::getDB(true)->delete('modules_extras', 'id = ?', $id);
+		BackendModel::getContainer()->get('database')->delete('modules_extras', 'id = ?', $id);
 	}
 
 	/**
@@ -240,17 +240,22 @@ class BackendModel extends BaseModel
 	 * @param string $module 			The module for the extra.
 	 * @param string $field 			The field of the data you want to check the value for.
 	 * @param string $value 			The value to check the field for.
+	 * @param string[optional] $action 	In case you want to search for a certain action.
 	 */
-	public function deleteExtrasForData($module, $field, $value)
+	public static function deleteExtrasForData($module, $field, $value, $action = null)
 	{
 		// get ids
-		$ids = self::getExtrasForData((string) $module, (string) $field, (string) $value);
+		$ids = self::getExtrasForData((string) $module, (string) $field, (string) $value, $action);
 
-		// delete extras
-		if(!empty($ids)) BackendModel::getDB(true)->delete('modules_extras', 'id IN (' . implode(',', $ids) . ')');
+		// we have extras
+		if(!empty($ids))
+		{
+			// delete extras
+			BackendModel::getContainer()->get('database')->delete('modules_extras', 'id IN (' . implode(',', $ids) . ')');
 
-		// invalidate the cache for the module
-		BackendModel::invalidateFrontendCache((string) $module, BL::getWorkingLanguage());
+			// invalidate the cache for the module
+			BackendModel::invalidateFrontendCache((string) $module, BL::getWorkingLanguage());
+		}
 	}
 
 	/**
@@ -338,7 +343,7 @@ class BackendModel extends BaseModel
 	 *  - 128x as foldername to generate an image where the width will be 128px, the height will be calculated based on the aspect ratio.
 	 *  - x128 as foldername to generate an image where the height will be 128px, the width will be calculated based on the aspect ratio.
 	 *
-	 * @param string $path The path wherin the thumbnail-folders will be stored.
+	 * @param string $path The path wherein the thumbnail-folders will be stored.
 	 * @param string $sourceFile The location of the source file.
 	 */
 	public static function generateThumbnails($path, $sourcefile)
@@ -407,7 +412,7 @@ class BackendModel extends BaseModel
 	public static function getExtras($ids)
 	{
 		// get db
-		$db = BackendModel::getDB(true);
+		$db = BackendModel::getContainer()->get('database');
 
 		// loop and cast to integers
 		foreach($ids as &$id) $id = (int) $id;
@@ -425,12 +430,13 @@ class BackendModel extends BaseModel
 	/**
 	 * Get extras for data
 	 *
-	 * @param string $module 	The module for the extra.
-	 * @param string $key 		The key of the data you want to check the value for.
-	 * @param string $value 	The value to check the key for.
-	 * @return array			The ids for the extras.
+	 * @param string $module 			The module for the extra.
+	 * @param string $key 				The key of the data you want to check the value for.
+	 * @param string $value 			The value to check the key for.
+	 * @param string[optional] $action 	In case you want to search for a certain action.
+	 * @return array					The ids for the extras.
 	 */
-	public static function getExtrasForData($module, $key, $value)
+	public static function getExtrasForData($module, $key, $value, $action = null)
 	{
 		// init variables
 		$module = (string) $module;
@@ -438,13 +444,26 @@ class BackendModel extends BaseModel
 		$value = (string) $value;
 		$result = array();
 
-		// get all possible extras
-		$items = (array) BackendModel::getDB(true)->getPairs(
-			'SELECT i.id, i.data
-			 FROM modules_extras AS i
-			 WHERE i.module = ? AND i.data != ?',
-			 array($module, 'NULL')
-		);
+		// init query
+		$query = 'SELECT i.id, i.data
+				 FROM modules_extras AS i
+				 WHERE i.module = ? AND i.data != ?';
+
+		// init parameters
+		$parameters = array($module, 'NULL');
+
+		// we have an action
+		if($action)
+		{
+			// redefine query
+			$query .= ' AND i.action = ?';
+
+			// add action to parameters
+			$parameters[] = (string) $action;
+		}
+
+		// get items
+		$items = (array) BackendModel::getContainer()->get('database')->getPairs($query, $parameters);
 
 		// stop here when no items
 		if(empty($items)) return $result;
@@ -510,7 +529,7 @@ class BackendModel extends BaseModel
 		if(empty(self::$modules))
 		{
 			// get all modules
-			$modules = (array) self::getDB()->getColumn('SELECT m.name FROM modules AS m');
+			$modules = (array) self::getContainer()->get('database')->getColumn('SELECT m.name FROM modules AS m');
 
 			// add modules to the cache
 			foreach($modules as $module) self::$modules[] = $module;
@@ -558,7 +577,7 @@ class BackendModel extends BaseModel
 		if(empty(self::$moduleSettings))
 		{
 			// get all settings
-			$moduleSettings = (array) self::getDB()->getRecords(
+			$moduleSettings = (array) self::getContainer()->get('database')->getRecords(
 				'SELECT ms.module, ms.name, ms.value
 				 FROM modules_settings AS ms'
 			);
@@ -733,7 +752,7 @@ class BackendModel extends BaseModel
 		// get the menuItems
 		$keys = self::getKeys($language);
 
-		// get the URL, if it doens't exist return 404
+		// get the URL, if it doesn't exist return 404
 		if(!isset($keys[$pageId])) return self::getURL(404);
 
 		// add URL
@@ -779,7 +798,7 @@ class BackendModel extends BaseModel
 						// direct link?
 						if($extra['module'] == $module && $extra['action'] == $action)
 						{
-							// exacte page was found, so return
+							// exact page was found, so return
 							return self::getURL($properties['page_id'], $language);
 						}
 
@@ -838,7 +857,7 @@ class BackendModel extends BaseModel
 	public static function getUTCTimestamp(SpoonFormDate $date, SpoonFormTime $time = null)
 	{
 		// validate date/time object
-		if(!$date->isValid() || ($time !== null && !$time->isValid())) throw new BackendException('You need to provide two objects that actaully contain valid data.');
+		if(!$date->isValid() || ($time !== null && !$time->isValid())) throw new BackendException('You need to provide two objects that actually contain valid data.');
 
 		// init vars
 		$year = gmdate('Y', $date->getTimestamp());
@@ -937,15 +956,15 @@ class BackendModel extends BaseModel
 		// get cache path
 		$path = FRONTEND_CACHE_PATH . '/cached_templates';
 
-		// build regular expresion
+		// build regular expression
 		if($module !== null)
 		{
-			if($language !== null) $regexp = '/' . '(.*)' . $module . '(.*)_cache\.tpl/i';
+			if($language === null) $regexp = '/' . '(.*)' . $module . '(.*)_cache\.tpl/i';
 			else $regexp = '/' . $language . '_' . $module . '(.*)_cache\.tpl/i';
 		}
 		else
 		{
-			if($language !== null) $regexp = '/(.*)_cache\.tpl/i';
+			if($language === null) $regexp = '/(.*)_cache\.tpl/i';
 			else $regexp = '/' . $language . '_(.*)_cache\.tpl/i';
 		}
 
@@ -954,6 +973,21 @@ class BackendModel extends BaseModel
 
 		// delete files
 		foreach($files as $file) SpoonFile::delete($path . '/' . $file);
+	}
+
+	/**
+	 * Is module installed?
+	 *
+	 * @param string $module
+	 * @return bool
+	 */
+	public static function isModuleInstalled($module)
+	{
+		// get installed modules
+		$modules = self::getModules();
+
+		// return if module is installed or not
+		return (in_array((string) $module, $modules));
 	}
 
 	/**
@@ -1093,7 +1127,7 @@ class BackendModel extends BaseModel
 		$valueToStore = serialize($value);
 
 		// store
-		self::getDB(true)->execute(
+		self::getContainer()->get('database')->execute(
 			'INSERT INTO modules_settings(module, name, value)
 			 VALUES(?, ?, ?)
 			 ON DUPLICATE KEY UPDATE value = ?',
@@ -1202,7 +1236,7 @@ class BackendModel extends BaseModel
 	 * @param string[optional] $type May be blank, comment, trackback, pingback, or a made up value like "registration".
 	 * @param string[optional] $referrer The content of the HTTP_REFERER header should be sent here.
 	 * @param array[optional] $others Other data (the variables from $_SERVER).
-	 * @return bool If everthing went fine, true will be returned, otherwise an exception will be triggered.
+	 * @return bool If everything went fine, true will be returned, otherwise an exception will be triggered.
 	 */
 	public static function submitHam($userIp, $userAgent, $content, $author = null, $email = null, $url = null, $permalink = null, $type = null, $referrer = null, $others = null)
 	{
@@ -1286,11 +1320,11 @@ class BackendModel extends BaseModel
 	}
 
 	/**
-	 * Subscribe to an event, when the subsription already exists, the callback will be updated.
+	 * Subscribe to an event, when the subscription already exists, the callback will be updated.
 	 *
 	 * @param string $eventModule The module that triggers the event.
 	 * @param string $eventName The name of the event.
-	 * @param string $module The module that subsribes to the event.
+	 * @param string $module The module that subscribes to the event.
 	 * @param mixed $callback The callback that should be executed when the event is triggered.
 	 */
 	public static function subscribeToEvent($eventModule, $eventName, $module, $callback)
@@ -1306,7 +1340,7 @@ class BackendModel extends BaseModel
 		$item['created_on'] = BackendModel::getUTCDate();
 
 		// get db
-		$db = self::getDB(true);
+		$db = self::getContainer()->get('database');
 
 		// check if the subscription already exists
 		$exists = (bool) $db->getVar(
@@ -1343,7 +1377,7 @@ class BackendModel extends BaseModel
 		if(SPOON_DEBUG) $log->write('Event (' . $module . '/' . $eventName . ') triggered.');
 
 		// get all items that subscribe to this event
-		$subscriptions = (array) self::getDB()->getRecords(
+		$subscriptions = (array) self::getContainer()->get('database')->getRecords(
 			'SELECT i.module, i.callback
 			 FROM hooks_subscriptions AS i
 			 WHERE i.event_module = ? AND i.event_name = ?',
@@ -1367,10 +1401,10 @@ class BackendModel extends BaseModel
 				$item['created_on'] = BackendModel::getUTCDate();
 
 				// add
-				$queuedItems[] = self::getDB(true)->insert('hooks_queue', $item);
+				$queuedItems[] = self::getContainer()->get('database')->insert('hooks_queue', $item);
 
 				// logging when we are in debugmode
-				if(SPOON_DEBUG) $log->write('Callback (' . $subscription['callback'] . ') is subcribed to event (' . $module . '/' . $eventName . ').');
+				if(SPOON_DEBUG) $log->write('Callback (' . $subscription['callback'] . ') is subscribed to event (' . $module . '/' . $eventName . ').');
 			}
 
 			// start processing
@@ -1383,7 +1417,7 @@ class BackendModel extends BaseModel
 	 *
 	 * @param string $eventModule The module that triggers the event.
 	 * @param string $eventName The name of the event.
-	 * @param string $module The module that subsribes to the event.
+	 * @param string $module The module that subscribes to the event.
 	 */
 	public static function unsubscribeFromEvent($eventModule, $eventName, $module)
 	{
@@ -1391,7 +1425,7 @@ class BackendModel extends BaseModel
 		$eventName = (string) $eventName;
 		$module = (string) $module;
 
-		self::getDB(true)->delete(
+		self::getContainer()->get('database')->delete(
 			'hooks_subscriptions', 'event_module = ? AND event_name = ? AND module = ?',
 			array($eventModule, $eventName, $module)
 		);
@@ -1419,7 +1453,7 @@ class BackendModel extends BaseModel
 		$item[(string) $key] = (string) $value;
 
 		// update the extra
-		BackendModel::getDB(true)->update('modules_extras', $item, 'id = ?', array((int) $id));
+		BackendModel::getContainer()->get('database')->update('modules_extras', $item, 'id = ?', array((int) $id));
 	}
 
 	/**
@@ -1432,7 +1466,7 @@ class BackendModel extends BaseModel
 	public static function updateExtraData($id, $key, $value)
 	{
 		// get db
-		$db = BackendModel::getDB(true);
+		$db = BackendModel::getContainer()->get('database');
 
 		// get data
 		$data = (string) $db->getVar(

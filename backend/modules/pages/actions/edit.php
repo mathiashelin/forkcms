@@ -178,7 +178,7 @@ class BackendPagesEdit extends BackendBaseActionEdit
 		// check if this action is allowed
 		if(BackendAuthentication::isAllowedAction('edit'))
 		{
-			// set colum URLs
+			// set column URLs
 			$this->dgDrafts->setColumnURL('title', BackendModel::createURLForAction('edit') . '&amp;id=[id]&amp;draft=[revision_id]');
 
 			// add use column
@@ -369,7 +369,7 @@ class BackendPagesEdit extends BackendBaseActionEdit
 		// check if this action is allowed
 		if(BackendAuthentication::isAllowedAction('edit'))
 		{
-			// set colum URLs
+			// set column URLs
 			$this->dgRevisions->setColumnURL('title', BackendModel::createURLForAction('edit') . '&amp;id=[id]&amp;revision=[revision_id]');
 
 			// add use column
