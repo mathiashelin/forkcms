@@ -8,6 +8,7 @@ Improvements:
 * Core: Upgraded jQueryUI to 1.10
 * Core: Upgraded Highcharts to 2.3.5
 * Core: Upgraded jsTree to 1.0
+* Core: use remote html5-shiv.
 
 Bugfixes:
 
