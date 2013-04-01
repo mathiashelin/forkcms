@@ -116,7 +116,7 @@ jsBackend.analytics.chartPieChart =
 	// destroy chart
 	destroy: function()
 	{
-		jsBackend.analytics.chartPieChart.chart.destroy();
+		$chartPieChart.highcharts().destroy();
 	}
 }
 
@@ -183,7 +183,7 @@ jsBackend.analytics.chartDoubleMetricPerDay =
 	// destroy chart
 	destroy: function()
 	{
-		jsBackend.analytics.chartDoubleMetricPerDay.chart.destroy();
+		$chartDoubleMetricPerDay.highcharts().destroy();
 	}
 }
 
@@ -243,7 +243,7 @@ jsBackend.analytics.chartSingleMetricPerDay =
 	// destroy chart
 	destroy: function()
 	{
-		jsBackend.analytics.chartSingleMetricPerDay.chart.destroy();
+		$chartSingleMetricPerDay.highcharts().destroy();
 	}
 }
 
@@ -309,7 +309,7 @@ jsBackend.analytics.chartWidget =
 	// destroy chart
 	destroy: function()
 	{
-		jsBackend.analytics.chartWidget.chart.destroy();
+		$chartWidget.highcharts().destroy();
 	}
 }
 
