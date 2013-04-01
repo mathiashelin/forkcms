@@ -79,11 +79,9 @@ jsBackend.mailmotor.chartPieChart =
 			});
 		});
 
-		var chart = new Highcharts.Chart(
-		{
-			chart: { renderTo: 'chartPieChart', height: 200, margin: [0, 160, 0, 0]	},
+		$('#chartPieChart').highcharts({
+			chart: { height: 200, margin: [0, 160, 0, 0], backgroundColor: 'transparent' },
 			credits: { enabled: false },
-			plotArea: { shadow: null, borderWidth: null, backgroundColor: null },
 			tooltip:
 			{
 				formatter: function()

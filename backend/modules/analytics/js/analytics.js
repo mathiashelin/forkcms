@@ -82,34 +82,27 @@ jsBackend.analytics.chartPieChart =
 
 		var containerWidth = $chartPieChart.width();
 
-		jsBackend.analytics.chartPieChart.chart = new Highcharts.Chart(
-		{
-			chart: { renderTo: 'chartPieChart', height: 200, width: containerWidth, margin: [0, 160, 0, 0] },
+		$chartPieChart.highcharts({
+			chart: { height: 200, width: containerWidth, margin: [0, 160, 0, 0], backgroundColor: 'transparent' },
 			credits: { enabled: false },
-			plotArea: { shadow: null, borderWidth: null, backgroundColor: null },
-			tooltip:
-			{
-				formatter: function()
-				{
+			tooltip: {
+				formatter: function() {
 					var percentage = String(this.point.percentage);
 					return '<b>'+ this.point.name +'</b>: '+ this.y + ' (' + percentage.substring(0, $.inArray('.', percentage) + 3) + '%)';
 				},
 				borderWidth: 2, shadow: false
 			},
-			plotOptions:
-			{
-				pie:
-				{
+			plotOptions: {
+				pie: {
 					allowPointSelect: true,
-					dataLabels:
-					{
+					dataLabels: {
 						enabled: false
 					},
 					showInLegend: true
 				}
 			},
 			legend: { align: 'right' },
-			series: [ {type: 'pie', data: pieChartData } ]
+			series: [ { type: 'pie', data: pieChartData } ]
 		});
 	},
 
@@ -161,17 +154,16 @@ jsBackend.analytics.chartDoubleMetricPerDay =
 
 		var containerWidth = $('#chartDoubleMetricPerDay').width();
 
-		jsBackend.analytics.chartDoubleMetricPerDay.chart = new Highcharts.Chart(
-		{
-			chart: { renderTo: 'chartDoubleMetricPerDay', height: 200, width: containerWidth, margin: [60, 0, 30, 40], defaultSeriesType: 'line' },
-			xAxis: { lineColor: '#CCC', lineWidth: 1, categories: xAxisCategories, color: '#000' },
+		$chartDoubleMetricPerDay.highcharts({
+			chart: { height: 200, width: containerWidth, margin: [60, 0, 30, 40], defaultSeriesType: 'line', backgroundColor: 'transparent' },
+			xAxis: { lineColor: '#CCC', lineWidth: 1, categories: xAxisCategories },
 			yAxis: { min: 0, max: $('#dataChartDoubleMetricPerDay #maxYAxis').html(), tickInterval: ($('#dataChartDoubleMetricPerDay #tickInterval').html() == '' ? null : $('#dataChartDoubleMetricPerDay #tickInterval').html()), title: { text: '' } },
 			credits: { enabled: false },
 			tooltip: { formatter: function() { return '<b>'+ this.series.name +'</b><br/>'+ xAxisValues[this.point.x] +': '+ this.y; } },
 			plotOptions:
 			{
-				line: { marker: { enabled: false, states: { hover: { enabled: true, symbol: 'circle', radius: 5, lineWidth: 1 } } } },
-				area: {	marker: { enabled: false, states: { hover: { enabled: true, symbol: 'circle', radius: 5, lineWidth: 1 } } } },
+				line: { marker: { enabled: false, states: { hover: { enabled: true, radius: 5, lineWidth: 1 } } } },
+				area: {	marker: { enabled: false, states: { hover: { enabled: true, radius: 5, lineWidth: 1 } } } },
 				column: { pointPadding: 0.2, borderWidth: 0 },
 				series: { fillOpacity: 0.3 }
 			},
@@ -222,16 +214,15 @@ jsBackend.analytics.chartSingleMetricPerDay =
 
 		var containerWidth = $('#chartSingleMetricPerDay').width();
 
-		jsBackend.analytics.chartSingleMetricPerDay.chart = new Highcharts.Chart(
-		{
-			chart: { renderTo: 'chartSingleMetricPerDay', height: 200, width: containerWidth, margin: [60, 0, 30, 40], defaultSeriesType: 'area' },
-			xAxis: { lineColor: '#CCC', lineWidth: 1, categories: xAxisCategories, color: '#000' },
+		$chartSingleMetricPerDay.highcharts({
+			chart: { height: 200, width: containerWidth, margin: [60, 0, 30, 40], defaultSeriesType: 'area', backgroundColor: 'transparent' },
+			xAxis: { lineColor: '#CCC', lineWidth: 1, categories: xAxisCategories },
 			yAxis: { min: 0, max: $('#dataChartSingleMetricPerDay #maxYAxis').html(), tickInterval: ($('#dataChartSingleMetricPerDay #tickInterval').html() == '' ? null : $('#dataChartSingleMetricPerDay #tickInterval').html()), title: { text: '' } },
 			credits: { enabled: false },
 			tooltip: { formatter: function() { return '<b>'+ this.series.name +'</b><br/>'+ xAxisValues[this.point.x] +': '+ this.y; } },
 			plotOptions:
 			{
-				area: { marker: { enabled: false, states: { hover: { enabled: true, symbol: 'circle', radius: 5, lineWidth: 1 } } } },
+				area: { marker: { enabled: false, states: { hover: { enabled: true, radius: 5, lineWidth: 1 } } } },
 				column: { pointPadding: 0.2, borderWidth: 0 },
 				series: { fillOpacity: 0.3 }
 			},
@@ -286,9 +277,8 @@ jsBackend.analytics.chartWidget =
 
 		metric2Values.each(function() { metric2Data.push(parseInt($(this).html())); });
 
-		jsBackend.analytics.chartWidget.chart = new Highcharts.Chart(
-		{
-			chart: { renderTo: 'chartWidget', defaultSeriesType: 'line', margin: [30, 0, 30, 0], height: 200, width: 270, defaultSeriesType: 'line' },
+		$chartWidget.highcharts({
+			chart: { defaultSeriesType: 'line', margin: [30, 0, 30, 0], height: 200, width: 270, defaultSeriesType: 'line', backgroundColor: 'transparent' },
 			xAxis: { categories: xAxisCategories },
 			yAxis: { min: 0, max: $('#dataChartWidget #maxYAxis').html(), tickInterval: ($('#dataChartWidget #tickInterval').html() == '' ? null : $('#dataChartWidget #tickInterval').html()), title: { enabled: false } },
 			credits: { enabled: false },
@@ -296,8 +286,8 @@ jsBackend.analytics.chartWidget =
 			tooltip: { formatter: function() { return '<b>'+ this.series.name +'</b><br/>'+ xAxisValues[this.point.x] +': '+ this.y; } },
 			plotOptions:
 			{
-				line: { marker: { enabled: false, states: { hover: { enabled: true, symbol: 'circle', radius: 5, lineWidth: 1 } } } },
-				area: { marker: { enabled: false, states: { hover: { enabled: true, symbol: 'circle', radius: 5, lineWidth: 1 } } } },
+				line: { marker: { enabled: false, states: { hover: { enabled: true, radius: 5, lineWidth: 1 } } } },
+				area: { marker: { enabled: false, states: { hover: { enabled: true, radius: 5, lineWidth: 1 } } } },
 				column: { pointPadding: 0.2, borderWidth: 0 },
 				series: { fillOpacity: 0.3 }
 			},

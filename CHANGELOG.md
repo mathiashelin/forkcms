@@ -6,7 +6,7 @@ Improvements:
 * Core: isInstalledModule() added in BackendModel. Thx to Jeroen Desloovere.
 * Core: Upgraded jQuery to 1.9.1, see http://jquery.com/upgrade-guide/1.9/ for more information about migrating your code.
 * Core: Upgraded jQueryUI to 1.10
-* Core: Upgraded Highcharts to 2.3.5
+* Core: Upgraded Highcharts to 3.0.0
 * Core: Upgraded jsTree to 1.0
 * Core: use remote html5-shiv.
 
