@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+use ForkCMS\Bundle\ContentBlocksBundle\Entity\ContentBlock;
+
 /**
  * This is the detail-action
  *
@@ -51,12 +53,25 @@ class FrontendBlogDetail extends FrontendBaseBlock
 	{
 		parent::execute();
 
+        $em = FrontendModel::getContainer()->get('doctrine')->getManager();
 
-        $doctrine = FrontendModel::getContainer()->get('doctrine')
-            ->getManager()->getRepository('ForkCMS\Bundle\ContentBlocksBundle\Entity\ContentBlock');
-echo '<pre>';
-        var_dump($doctrine);
-exit;
+        $cb = new ContentBlock;
+        $cb->setTitle('Dieter');
+        $cb->setContent('Zwijg');
+
+        $em->persist($cb);
+        $em->flush();
+
+        $repo = FrontendModel::getContainer()->get('doctrine')
+            ->getManager()->getRepository(
+                'ForkCMS\Bundle\ContentBlocksBundle\Entity\ContentBlock'
+            );
+
+        $all = $repo->findAll();
+
+        echo '<pre>';
+        var_dump($all);
+        exit;
 
 		$this->tpl->assign('hideContentTitle', true);
 		$this->loadTemplate();
@@ -147,10 +162,10 @@ exit;
 
 		// add RSS-feed into the metaCustom
 		$this->header->addLink(array('rel' => 'alternate', 'type' => 'application/rss+xml', 'title' => vsprintf(FL::msg('CommentsOn'), array($this->record['title'])), 'href' => $rssCommentsLink), true);
-		
+
 		// add specified image
 		if(isset($this->record['image']) && $this->record['image'] != '') $this->header->addOpenGraphImage(FRONTEND_FILES_URL . '/blog/images/source/' . $this->record['image']);
-		
+
 		// Open Graph-data: add images from content
 		$this->header->extractOpenGraphImages($this->record['text']);
 
