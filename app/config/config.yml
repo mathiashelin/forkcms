@@ -8,6 +8,25 @@ monolog:
             path:  %site.path_www%/app/logs/logs.log
             level: debug
 
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+        host:     %database.host%
+        port:     %database.port%
+        dbname:   %database.name%
+        user:     %database.user%
+        password: %database.password%
+        charset:  UTF8
+
+    orm:
+        auto_generate_proxy_classes: %kernel.debug%
+        auto_mapping: true
+        mappings:
+            ContentBlocksBundle:
+                type: annotation
+                prefix: ForkCMS\Bundle\ContentBlocksBundle\Entity
+                dir: /Users/jelmersnoeck/Projects/ContentBlocks/Entity
+
 services:
     database:
         class: SpoonDatabase

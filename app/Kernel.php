@@ -179,6 +179,10 @@ abstract class Kernel implements KernelInterface
 	protected function getKernelParameters()
 	{
 		// This is also where symfony loads and stores the names of the active bundles
+		$bundles = array();
+		foreach ($this->bundles as $name => $bundle) {
+			$bundles[$name] = get_class($bundle);
+		}
 
 		/**
 		 * Debug status and environment are params of the Kernel constructor, and
@@ -188,9 +192,10 @@ abstract class Kernel implements KernelInterface
 		 * We can add additional non-installer related configuration options here.
 		 */
 		return array(
-			//'kernel.debug' => $this->debug,
-			//'kernel.environment' => $this->environment,
+			'kernel.environment' => 'dev',
+			'kernel.debug' => true,
 			'kernel.root_dir' => $this->getRootDir(),
+			'kernel.bundles' => $bundles,
 		);
 	}
 

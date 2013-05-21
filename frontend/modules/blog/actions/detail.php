@@ -50,6 +50,14 @@ class FrontendBlogDetail extends FrontendBaseBlock
 	public function execute()
 	{
 		parent::execute();
+
+
+        $doctrine = FrontendModel::getContainer()->get('doctrine')
+            ->getManager()->getRepository('ForkCMS\Bundle\ContentBlocksBundle\Entity\ContentBlock');
+echo '<pre>';
+        var_dump($doctrine);
+exit;
+
 		$this->tpl->assign('hideContentTitle', true);
 		$this->loadTemplate();
 		$this->getData();

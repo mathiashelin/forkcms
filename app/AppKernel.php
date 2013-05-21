@@ -30,8 +30,9 @@ class AppKernel extends Kernel
 	public function registerBundles()
 	{
 		$bundles = array(
+			            new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
 			new Symfony\Bundle\MonologBundle\MonologBundle(),
-			new ForkCMS\Bundle\ContentBlocksBundle(),
+			new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
 		);
 
 		return $bundles;
