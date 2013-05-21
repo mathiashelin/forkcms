@@ -8,10 +8,16 @@ parameters:
 
     kernel.debug:           <debug-mode>
     kernel.charset:         'utf-8'
+    kernel.cache_dir:       %kernel.root_dir%/cache
 
     fork.debug_email:       <debug-email>
     fork.debug_message:     'Internal error.'
     fork.version:           '3.5.1'
+
+    mailer_transport:       smtp
+    mailer_host:            localhost
+    mailer_user:            -
+    mailer_password:        -
 
     site.protocol:          <site-protocol>
     site.domain:            <site-domain>
