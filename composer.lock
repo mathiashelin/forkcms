@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "bc7cce9ff563ce5f7a615afd3ae19b44",
+    "hash": "1536d81bbe2e71e9e968a648fe48ee2b",
     "packages": [
         {
             "name": "facebook/php-sdk",
@@ -47,6 +47,40 @@
                 "sdk"
             ],
             "time": "2013-01-15 21:37:15"
+        },
+        {
+            "name": "forkcms/content-blocks-bundle",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/forkcms/ContentBlocks.git",
+                "reference": "1393acb713477f60a80e27887282ef03db0718ff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/forkcms/ContentBlocks/zipball/1393acb713477f60a80e27887282ef03db0718ff",
+                "reference": "1393acb713477f60a80e27887282ef03db0718ff",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "type": "forkcms-bundle",
+            "autoload": {
+                "psr-0": {
+                    "ForkCMS\\Bundle\\ContentBlocksBundle": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Fork CMS Content Blocks Repo",
+            "homepage": "http://fork-cms.com",
+            "keywords": [
+                "Content Blocks"
+            ],
+            "time": "2013-05-21 10:58:32"
         },
         {
             "name": "matthiasmullie/minify",
