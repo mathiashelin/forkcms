@@ -31,6 +31,7 @@ class AppKernel extends Kernel
 	{
 		$bundles = array(
 			new Symfony\Bundle\MonologBundle\MonologBundle(),
+			new ForkCMS\Bundle\ContentBlocksBundle(),
 		);
 
 		return $bundles;
