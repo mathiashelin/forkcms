@@ -26,6 +26,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\AddClassesToCachePass;
 use Symfony\Component\HttpKernel\DependencyInjection\MergeExtensionConfigurationPass;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 
 /**
  * The Kernel provides a proper way to load an environment and DI container.
@@ -95,6 +96,10 @@ abstract class Kernel implements KernelInterface
 			// define Fork constants
 			$this->defineForkConstants();
 		}
+
+		AnnotationRegistry::registerFile(
+			__DIR__ . "/../vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php"
+		);
 	}
 
 	/**
