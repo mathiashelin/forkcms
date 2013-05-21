@@ -22,4 +22,7 @@ $entityManager = EntityManager::create($dbParams, $config);
 $platform = $entityManager->getConnection()->getDatabasePlatform();
 $platform->registerDoctrineTypeMapping('enum', 'string');
 
+// @todo: fix orm prefix
+// 40:        $entityGenerator->setAnnotationPrefix('ORM\\');
+
 return ConsoleRunner::createHelperSet($entityManager);
