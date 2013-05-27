@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "b6e1597d76edddb3676aea395228c033",
+    "hash": "0ab5a99b9e58c09fb1029416e1233805",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -671,11 +671,10 @@
         {
             "name": "forkcms/content-blocks-bundle",
             "version": "dev-master",
-            "target-dir": "ForkCMS/Bundle/ContentBlocksBundle",
             "source": {
                 "type": "git",
-                "url": "/Users/jelmersnoeck/Projects/ContentBlocks",
-                "reference": "e6f3021b9eac310b1a2ce219b20b9dba886831ab"
+                "url": "/Users/tijs/Sites/forkcms/ContentBlocks",
+                "reference": "af425c101edfb5a54f05e1fa01a182ba42897492"
             },
             "require": {
                 "doctrine/doctrine-bundle": ">=2.1@dev",
@@ -696,7 +695,7 @@
             "keywords": [
                 "Content Blocks"
             ],
-            "time": "2013-05-21 13:27:35"
+            "time": "2013-05-21 11:58:52"
         },
         {
             "name": "jdorn/sql-formatter",
