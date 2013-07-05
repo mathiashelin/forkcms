@@ -63,7 +63,7 @@
 			{/option:!hasProfiles}
 
 			<div class="buttonHolder">
-				<a href="{$var|geturl:'settings'}&amp;remove=session_token" data-message-id="confirmDeleteSessionToken" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveAccountLink}</span></a>
+				<a href="{$var|geturl:'settings'}&amp;remove=session" data-message-id="confirmDeleteSession" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveAccountLink}</span></a>
 			</div>
 		{/option:step3}
 
@@ -74,58 +74,14 @@
 				{$lblLinkedProfile|ucfirst}: <strong>{$webPropertyName} ({$webPropertyId})</strong>
 			</p>
 			<div class="buttonHolder">
-				<a href="{$var|geturl:'settings'}&amp;remove=table_id" data-message-id="confirmDeleteTableId" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveProfileLink}</span></a>
+				<a href="{$var|geturl:'settings'}&amp;remove=session" data-message-id="confirmDeleteSession" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveAccountLink}</span></a>
 				{option:showAnalyticsIndex}<a href="{$var|geturl:'index'}" class="mainButton button"><span>{$lblViewStatistics|ucfirst}</span></a>{/option:showAnalyticsIndex}
 			</div>
 		{/option:step4}
 
-		{option:Wizard}
-
-			{option:NoTableId}
-				{option:accounts}
-					<p>{$msgLinkWebsiteProfile}</p>
-					{form:linkProfile}
-					<div class="oneLiner fakeP">
-						<p>
-							{$ddmTableId} {option:tableIdError}<br /><span class="formerror">{$tableIdError}</span>{/option:tableIdError}
-						</p>
-						<div class="buttonHolder">
-							<input id="submitForm" class="inputButton button mainButton" type="submit" name="submitForm" value="{$lblLinkThisProfile|ucfirst}" />
-						</div>
-					</div>
-					{/form:linkProfile}
-				{/option:accounts}
-
-				{option:!accounts}
-					<p>{$msgNoAccounts}</p>
-				{/option:!accounts}
-
-				<div class="buttonHolder">
-					<a href="{$var|geturl:'settings'}&amp;remove=session_token" data-message-id="confirmDeleteSessionToken" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveAccountLink}</span></a>
-				</div>
-			{/option:NoTableId}
-		{/option:Wizard}
-
-		{option:EverythingIsPresent}
+		<div id="confirmDeleteSession" title="{$lblDelete|ucfirst}?" style="display: none;">
 			<p>
-				{$lblLinkedAccount|ucfirst}: <strong>{$accountName}</strong><br />
-				{$lblLinkedProfile|ucfirst}: <strong>{$profileTitle}</strong>
-			</p>
-			<div class="buttonHolder">
-				<a href="{$var|geturl:'settings'}&amp;remove=table_id" data-message-id="confirmDeleteTableId" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveProfileLink}</span></a>
-				{option:showAnalyticsIndex}<a href="{$var|geturl:'index'}" class="mainButton button"><span>{$lblViewStatistics|ucfirst}</span></a>{/option:showAnalyticsIndex}
-			</div>
-		{/option:EverythingIsPresent}
-
-		<div id="confirmDeleteSessionToken" title="{$lblDelete|ucfirst}?" style="display: none;">
-			<p>
-				{$msgConfirmDeleteLinkGoogleAccount}
-			</p>
-		</div>
-
-		<div id="confirmDeleteTableId" title="{$lblDelete|ucfirst}?" style="display: none;">
-			<p>
-				{$msgConfirmDeleteLinkAccount|sprintf:{$accountName}}
+				{$msgConfirmDeleteLinkAccount}
 			</p>
 		</div>
 	</div>

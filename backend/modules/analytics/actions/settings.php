@@ -61,8 +61,14 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		 */
 		$this->loadData();
 
+		// removing the link
+		if(SpoonFilter::getGetValue('remove', array('session'), null) == 'session')
+		{
+			$this->removeLink();
+		}
+
 		// we are missing info to be able to connect to the api
-		if(empty($this->clientId) || empty($this->clientSecret) || empty($this->token))
+		elseif(empty($this->clientId) || empty($this->clientSecret) || empty($this->token))
 		{
 			$this->loadStep1();
 			$this->loadStep2();
@@ -274,6 +280,23 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$this->tpl->assign('accountName', $this->accountName);
 		$this->tpl->assign('webPropertyName', $this->webPropertyName);
 		$this->tpl->assign('webPropertyId', $this->webPropertyId);
+	}
+
+	/**
+	 * Removes all information which allows us to connect with the API.
+	 */
+	private function removeLink()
+	{
+		BackendModel::setModuleSetting($this->getModule(), 'client_id', null);
+		BackendModel::setModuleSetting($this->getModule(), 'client_secret', null);
+		BackendModel::setModuleSetting($this->getModule(), 'token', null);
+		BackendModel::setModuleSetting($this->getModule(), 'account_id', null);
+		BackendModel::setModuleSetting($this->getModule(), 'account_name', null);
+		BackendModel::setModuleSetting($this->getModule(), 'web_property_id', null);
+		BackendModel::setModuleSetting($this->getModule(), 'web_property_name', null);
+		BackendModel::setModuleSetting($this->getModule(), 'universal_analytics', null);
+
+		$this->redirect(BackendModel::createURLForAction($this->getAction()) . '&report=removed');
 	}
 
 	/**
