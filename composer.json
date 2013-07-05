@@ -17,7 +17,8 @@
         "symfony/filesystem": "2.3.*",
         "symfony/finder": "2.3.*",
         "spoon/library": "1.3.*",
-        "symfony/monolog-bundle": "2.3.*"
+        "symfony/monolog-bundle": "2.3.*",
+		"google/google-api-php-client": "0.6.*"
     },
     "support": {
         "irc": "irc://irc.freenode.org/forkcms",
@@ -25,5 +26,21 @@
     },
     "scripts": {
         "post-update-cmd": "cd tools && ./remove_cache"
-    }
+    },
+	"repositories": [
+		{
+			"type": "package",
+			"package": {
+				"name": "google/google-api-php-client",
+				"version": "0.6.2",
+				"dist": {
+					"url": "http://google-api-php-client.googlecode.com/files/google-api-php-client-0.6.2.tar.gz",
+					"type": "tar"
+				},
+				"autoload": {
+					"classmap": ["src/"]
+				}
+			}
+		}
+	]
 }

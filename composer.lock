@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "89af26974e1fc0da07394bcbf35e28a6",
+    "hash": "3c5b51304802f4039682fd329f0eee5e",
     "packages": [
         {
             "name": "facebook/php-sdk",
@@ -47,6 +47,22 @@
                 "sdk"
             ],
             "time": "2013-01-15 21:37:15"
+        },
+        {
+            "name": "google/google-api-php-client",
+            "version": "0.6.2",
+            "dist": {
+                "type": "tar",
+                "url": "http://google-api-php-client.googlecode.com/files/google-api-php-client-0.6.2.tar.gz",
+                "reference": null,
+                "shasum": null
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            }
         },
         {
             "name": "matthiasmullie/minify",
