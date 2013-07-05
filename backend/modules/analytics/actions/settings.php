@@ -16,6 +16,23 @@
 class BackendAnalyticsSettings extends BackendBaseActionEdit
 {
 	/**
+	 * @var Google_Client
+	 */
+	private $client;
+
+	/**
+	 * @var Google_AnalyticsService
+	 */
+	private $service;
+
+	/**
+	 * Google API authentication info.
+	 *
+	 * @var string
+	 */
+	private $clientId, $clientSecret;
+
+	/**
 	 * The account name
 	 *
 	 * @var	string
@@ -55,7 +72,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 	 *
 	 * @var	string
 	 */
-	private $sessionToken;
+	private $token;
 
 	/**
 	 * The table id
@@ -70,11 +87,80 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 	public function execute()
 	{
 		parent::execute();
-		$this->loadTrackingTypeForm();
-		$this->validateTrackingTypeForm();
-		$this->getAnalyticsParameters();
-		$this->parse();
+
+		/*
+		 * Flow:
+		 * 1. via form fill in client id and secret
+		 * 2. save and redirect to oauth dialog
+		 * 3. catch errors or save token (as json string)
+		 * 4. fetch accounts and profiles (create dropdown)
+		 * 5. let them save the account/profile id
+		 * 6. lock it down
+		 */
+		$this->loadData();
+
+		// nothing is set up yet, load first step
+		if(empty($this->clientId) || empty($this->clientSecret) || empty($this->token))
+		{
+			$this->loadStep1();
+		}
+
+
+//		$this->loadTrackingTypeForm();
+//		$this->validateTrackingTypeForm();
+//		$this->getAnalyticsParameters();
+//		$this->parse();
 		$this->display();
+	}
+
+	private function loadData()
+	{
+		$this->client = new Google_Client();
+		$this->service = new Google_AnalyticsService($this->client);
+
+		$this->client->setApplicationName(BackendModel::getModuleSetting('core', 'site_title_' . BL::getWorkingLanguage()));
+		$this->client->setScopes(array('https://www.googleapis.com/auth/analytics.readonly'));
+		$this->client->setUseObjects(true);
+
+		// remove dynamic parameters so it matches exactly with the redirect uri set up in Google Console (will fail otherwise)
+		$redirectUrl = SITE_URL . BackendModel::createURLForAction($this->getAction());
+		$redirectUrl = substr($redirectUrl, 0, stripos($redirectUrl, '?'));
+		$this->client->setRedirectUri($redirectUrl);
+
+		$this->clientId = BackendModel::getModuleSetting($this->getModule(), 'client_id');
+		$this->clientSecret = BackendModel::getModuleSetting($this->getModule(), 'client_secret');
+		$this->client->setClientId($this->clientId);
+		$this->client->setClientSecret($this->clientSecret);
+	}
+
+	private function loadStep1()
+	{
+		$frm = new BackendForm('clientInfo');
+		$frm->addText('client_id', $this->clientId);
+		$frm->addText('client_secret', $this->clientSecret);
+
+		if($frm->isSubmitted())
+		{
+			$frm->getField('client_id')->isFilled(BL::err('FieldIsRequired'));
+			$frm->getField('client_secret')->isFilled(BL::err('FieldIsRequired'));
+
+			if($frm->isCorrect())
+			{
+				$this->clientId = $frm->getField('client_id')->getValue();
+				$this->clientSecret = $frm->getField('client_secret')->getValue();
+
+				BackendModel::setModuleSetting($this->getModule(), 'client_id', $this->clientId);
+				BackendModel::setModuleSetting($this->getModule(), 'client_secret', $this->clientSecret);
+
+				$this->client->setClientId($this->clientId);
+				$this->client->setClientSecret($this->clientSecret);
+
+				$this->redirect($this->client->createAuthUrl());
+			}
+		}
+
+		$this->tpl->assign('step1', true);
+		$frm->parse($this->tpl);
 	}
 
 	/**

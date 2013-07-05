@@ -21,6 +21,27 @@
 	</div>
 
 	<div class="options">
+
+		{* Fill in client id and secret *}
+		{option:step1}
+			{form:clientInfo}
+				<p>{$msgLinkGoogleAccount}</p>
+
+				<div class="inputList">
+					<label for="clientId">{$lblClientId|ucfirst}</label>
+					{$txtClientId} {$txtClientIdError}
+				</div>
+				<div class="inputList">
+					<label for="clientSecret">{$lblClientSecret|ucfirst}</label>
+					{$txtClientSecret} {$txtClientSecretError}
+				</div>
+
+				<div class="buttonHolder">
+					<input id="submitForm" class="inputButton button mainButton" type="submit" name="submitForm" value="{$msgAuthenticateAtGoogle}" />
+				</div>
+			{/form:clientInfo}
+		{/option:step1}
+
 		{option:Wizard}
 			{option:NoSessionToken}
 				{form:apiKey}
