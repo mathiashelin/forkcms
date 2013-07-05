@@ -42,22 +42,32 @@
 			{/form:clientInfo}
 		{/option:step1}
 
+		{* Choose a profile/account *}
+		{option:step3}
+			{option:hasProfiles}
+				<p>{$msgLinkWebsiteProfile}</p>
+				{form:linkProfile}
+					<div class="oneLiner fakeP">
+						<p>
+							{$ddmProfiles} {$ddmProfilesError}
+						</p>
+						<div class="buttonHolder">
+							<input id="submitForm" class="inputButton button mainButton" type="submit" name="submitForm" value="{$lblLinkThisProfile|ucfirst}" />
+						</div>
+					</div>
+				{/form:linkProfile}
+			{/option:hasProfiles}
+
+			{option:!hasProfiles}
+				<p>{$msgNoAccounts}</p>
+			{/option:!hasProfiles}
+
+			<div class="buttonHolder">
+				<a href="{$var|geturl:'settings'}&amp;remove=session_token" data-message-id="confirmDeleteSessionToken" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveAccountLink}</span></a>
+			</div>
+		{/option:step3}
+
 		{option:Wizard}
-			{option:NoSessionToken}
-				{form:apiKey}
-					<p>{$msgLinkGoogleAccount}</p>
-
-					<div class="inputList">
-						<label for="key">{$lblApiKey|ucfirst}</label>
-						{$txtKey} {$txtKeyError}
-					</div>
-
-					<div class="buttonHolder">
-						<input id="submitForm" class="inputButton button mainButton" type="submit" name="submitForm" value="{$msgAuthenticateAtGoogle}" />
-					</div>
-
-				{/form:apiKey}
-			{/option:NoSessionToken}
 
 			{option:NoTableId}
 				{option:accounts}

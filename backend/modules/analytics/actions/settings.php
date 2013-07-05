@@ -33,39 +33,11 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 	private $clientId, $clientSecret;
 
 	/**
-	 * The account name
+	 * The currently linked info
 	 *
 	 * @var	string
 	 */
-	private $accountName;
-
-	/**
-	 * API key needed by the API.
-	 *
-	 * @var string
-	 */
-	private $apiKey;
-
-	/**
-	 * The forms used on this page
-	 *
-	 * @var BackendForm
-	 */
-	private $frmApiKey, $frmLinkProfile, $frmTrackingType;
-
-	/**
-	 * All website profiles
-	 *
-	 * @var	array
-	 */
-	private $profiles = array();
-
-	/**
-	 * The title of the selected profile
-	 *
-	 * @var	string
-	 */
-	private $profileTitle;
+	private $accountId, $accountName, $webPropertyId, $webPropertyName;
 
 	/**
 	 * The session token
@@ -74,16 +46,6 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 	 */
 	private $token;
 
-	/**
-	 * The table id
-	 *
-	 * @var	int
-	 */
-	private $tableId;
-
-	/**
-	 * Execute the action
-	 */
 	public function execute()
 	{
 		parent::execute();
@@ -106,10 +68,12 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 			$this->loadStep2();
 		}
 
-//		$this->loadTrackingTypeForm();
-//		$this->validateTrackingTypeForm();
-//		$this->getAnalyticsParameters();
-//		$this->parse();
+		// a token is available, display accounts
+		elseif(!empty($this->token))
+		{
+			$this->loadStep3();
+		}
+
 		$this->display();
 	}
 
@@ -134,6 +98,11 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 
 		$this->token = BackendModel::getModuleSetting($this->getModule(), 'token');
 		if(!empty($this->token)) $this->client->setAccessToken($this->token);
+
+		$this->accountId = BackendModel::getModuleSetting($this->getModule(), 'account_id');
+		$this->accountName = BackendModel::getModuleSetting($this->getModule(), 'account_name');
+		$this->webPropertyId = BackendModel::getModuleSetting($this->getModule(), 'web_property_id');
+		$this->webPropertyName = BackendModel::getModuleSetting($this->getModule(), 'web_property_name');
 	}
 
 	/**
@@ -188,6 +157,76 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		}
 	}
 
+	/**
+	 * Fetch all accounts and profiles using the current access token. Build a form around it
+	 * so the user can choose which profile/account to link.
+	 */
+	private function loadStep3()
+	{
+		$accounts = $this->service->management_accounts->listManagementAccounts();
+		$webProperties = $this->service->management_webproperties->listManagementWebproperties("~all");
+
+		$webPropertiesByAccount = array();
+		foreach($accounts->items as $account)
+		{
+			$webPropertiesByAccount[$account->id] = array(
+				'label' => $account->name,
+				'properties' => array()
+			);
+		}
+		foreach($webProperties->items as $webProperty)
+		{
+			$webPropertiesByAccount[$webProperty->accountId]['properties'][$webProperty->id] = $webProperty->name . ' (' . $webProperty->id . ')';
+		}
+
+		$profilesValues = array();
+		foreach($webPropertiesByAccount as $id => $account)
+		{
+			$profilesValues[$id] = $account['properties'];
+		}
+
+		$frm = new BackendForm('linkProfile');
+		$frm->addDropdown('profiles', $profilesValues)->setDefaultElement('');
+
+		if($frm->isSubmitted())
+		{
+			$frm->getField('profiles')->isFilled(BL::err('FieldIsRequired'));
+
+			if($frm->isCorrect())
+			{
+				$accountId = null;
+				$accountName = null;
+				$webPropertyId = $frm->getField('profiles')->getValue();
+				$webPropertyName = null;
+				foreach($webProperties->items as $webProperty)
+				{
+					if($webProperty->id == $webPropertyId)
+					{
+						$webPropertyName = $webProperty->name;
+						$accountId = $webProperty->accountId;
+					}
+				}
+				foreach($accounts->items as $account)
+				{
+					if($account->id == $accountId)
+					{
+						$accountName = $account->name;
+					}
+				}
+
+				BackendModel::setModuleSetting($this->getModule(), 'account_id', $accountId);
+				BackendModel::setModuleSetting($this->getModule(), 'account_name', $accountName);
+				BackendModel::setModuleSetting($this->getModule(), 'web_property_id', $webPropertyId);
+				BackendModel::setModuleSetting($this->getModule(), 'web_property_name', $webPropertyName);
+
+				$this->redirect(BackendModel::createURLForAction($this->getAction()));
+			}
+		}
+
+		$this->tpl->assign('step3', true);
+		$this->tpl->assign('hasProfiles', (count($profilesValues) > 0));
+		$frm->parse($this->tpl);
+	}
 
 	/**
 	 * Gets all the needed parameters to link a google analytics account to fork
