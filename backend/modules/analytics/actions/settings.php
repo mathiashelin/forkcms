@@ -99,12 +99,12 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		 */
 		$this->loadData();
 
-		// nothing is set up yet, load first step
+		// we are missing info to be able to connect to the api
 		if(empty($this->clientId) || empty($this->clientSecret) || empty($this->token))
 		{
 			$this->loadStep1();
+			$this->loadStep2();
 		}
-
 
 //		$this->loadTrackingTypeForm();
 //		$this->validateTrackingTypeForm();
@@ -129,10 +129,17 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 
 		$this->clientId = BackendModel::getModuleSetting($this->getModule(), 'client_id');
 		$this->clientSecret = BackendModel::getModuleSetting($this->getModule(), 'client_secret');
-		$this->client->setClientId($this->clientId);
-		$this->client->setClientSecret($this->clientSecret);
+		if(!empty($this->clientId)) $this->client->setClientId($this->clientId);
+		if(!empty($this->clientSecret)) $this->client->setClientSecret($this->clientSecret);
+
+		$this->token = BackendModel::getModuleSetting($this->getModule(), 'token');
+		if(!empty($this->token)) $this->client->setAccessToken($this->token);
 	}
 
+	/**
+	 * Before interacting with the Google API, we require some client information.
+	 * This method will create a form, allowing the user to fill in that info.
+	 */
 	private function loadStep1()
 	{
 		$frm = new BackendForm('clientInfo');
@@ -162,6 +169,25 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$this->tpl->assign('step1', true);
 		$frm->parse($this->tpl);
 	}
+
+	/**
+	 * After authenticating at Google, you'll be redirected back with a 'code' variable
+	 * in the query string. This method will save that code and request an access token.
+	 */
+	private function loadStep2()
+	{
+		if(isset($_GET['code']))
+		{
+			$this->client->authenticate();
+
+			$this->token = $this->client->getAccessToken();
+
+			BackendModel::setModuleSetting($this->getModule(), 'token', $this->token);
+
+			$this->redirect(BackendModel::createURLForAction($this->getAction()));
+		}
+	}
+
 
 	/**
 	 * Gets all the needed parameters to link a google analytics account to fork
