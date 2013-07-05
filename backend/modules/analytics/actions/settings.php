@@ -69,9 +69,15 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		}
 
 		// a token is available, display accounts
-		elseif(!empty($this->token))
+		elseif(!empty($this->token) && empty($this->accountId))
 		{
 			$this->loadStep3();
+		}
+
+		// account is linked, display info
+		elseif(!empty($this->accountId))
+		{
+			$this->loadStep4();
 		}
 
 		$this->display();
@@ -219,13 +225,55 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 				BackendModel::setModuleSetting($this->getModule(), 'web_property_id', $webPropertyId);
 				BackendModel::setModuleSetting($this->getModule(), 'web_property_name', $webPropertyName);
 
-				$this->redirect(BackendModel::createURLForAction($this->getAction()));
+				$this->redirect(BackendModel::createURLForAction($this->getAction()) . '&report=saved');
 			}
 		}
 
 		$this->tpl->assign('step3', true);
 		$this->tpl->assign('hasProfiles', (count($profilesValues) > 0));
 		$frm->parse($this->tpl);
+	}
+
+	/**
+	 * A link has been made with Google Analytics. All info required for communication with the API
+	 * is available. This method will display that info.
+	 *
+	 * Allow settting of tracking type.
+	 */
+	private function loadStep4()
+	{
+		$frm = new BackendForm('trackingType');
+
+		$types = array();
+		$types[] = array('label' => 'Universal Analytics', 'value' => 'universal_analytics');
+		$types[] = array('label' => 'Classic Google Analytics', 'value' => 'classic_analytics');
+		$types[] = array('label' => 'Display Advertising (stats.g.doubleclick.net/dc.js)', 'value' => 'display_advertising');
+
+		$frm->addRadiobutton(
+			'type',
+			$types,
+			BackendModel::getModuleSetting($this->URL->getModule(), 'tracking_type', 'universal_analytics')
+		);
+
+		if($frm->isSubmitted())
+		{
+			if($frm->isCorrect())
+			{
+				BackendModel::setModuleSetting(
+					$this->getModule(),
+					'tracking_type',
+					$frm->getField('type')->getValue()
+				);
+				BackendModel::triggerEvent($this->getModule(), 'after_saved_tracking_type_settings');
+				$this->redirect(BackendModel::createURLForAction($this->getAction()) . '&report=saved');
+			}
+		}
+
+		$frm->parse($this->tpl);
+		$this->tpl->assign('step4', true);
+		$this->tpl->assign('accountName', $this->accountName);
+		$this->tpl->assign('webPropertyName', $this->webPropertyName);
+		$this->tpl->assign('webPropertyId', $this->webPropertyId);
 	}
 
 	/**
@@ -346,47 +394,6 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 						BackendModel::setModuleSetting($this->getModule(), 'web_property_id', $webPropertyId);
 					}
 				}
-			}
-		}
-	}
-
-	/**
-	 * Load settings form
-	 */
-	private function loadTrackingTypeForm()
-	{
-		$this->frmTrackingType = new BackendForm('trackingType');
-
-		$types = array();
-		$types[] = array('label' => 'Universal Analytics', 'value' => 'universal_analytics');
-		$types[] = array('label' => 'Classic Google Analytics', 'value' => 'classic_analytics');
-		$types[] = array('label' => 'Display Advertising (stats.g.doubleclick.net/dc.js)', 'value' => 'display_advertising');
-
-		$this->frmTrackingType->addRadiobutton(
-			'type',
-			$types,
-			BackendModel::getModuleSetting($this->URL->getModule(), 'tracking_type', 'universal_analytics')
-		);
-	}
-
-	/**
-	 * Validates the tracking url form.
-	 */
-	private function validateTrackingTypeForm()
-	{
-		// form is submitted
-		if($this->frmTrackingType->isSubmitted())
-		{
-			// form is validated
-			if($this->frmTrackingType->isCorrect())
-			{
-				BackendModel::setModuleSetting(
-					$this->getModule(),
-					'tracking_type',
-					$this->frmTrackingType->getField('type')->getValue()
-				);
-				BackendModel::triggerEvent($this->getModule(), 'after_saved_tracking_type_settings');
-				$this->redirect(BackendModel::createURLForAction('settings') . '&report=saved');
 			}
 		}
 	}

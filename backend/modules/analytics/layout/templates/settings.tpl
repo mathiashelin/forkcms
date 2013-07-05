@@ -67,6 +67,18 @@
 			</div>
 		{/option:step3}
 
+		{* Account is linked, display info *}
+		{option:step4}
+			<p>
+				{$lblLinkedAccount|ucfirst}: <strong>{$accountName}</strong><br />
+				{$lblLinkedProfile|ucfirst}: <strong>{$webPropertyName} ({$webPropertyId})</strong>
+			</p>
+			<div class="buttonHolder">
+				<a href="{$var|geturl:'settings'}&amp;remove=table_id" data-message-id="confirmDeleteTableId" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveProfileLink}</span></a>
+				{option:showAnalyticsIndex}<a href="{$var|geturl:'index'}" class="mainButton button"><span>{$lblViewStatistics|ucfirst}</span></a>{/option:showAnalyticsIndex}
+			</div>
+		{/option:step4}
+
 		{option:Wizard}
 
 			{option:NoTableId}
@@ -119,7 +131,7 @@
 	</div>
 </div>
 
-{option:EverythingIsPresent}
+{option:step4}
 	{form:trackingType}
 		<div class="box">
 			<div class="heading">
@@ -141,7 +153,7 @@
 			</div>
 		</div>
 	{/form:trackingType}
-{/option:EverythingIsPresent}
+{/option:step4}
 
 {include:{$BACKEND_CORE_PATH}/layout/templates/structure_end_module.tpl}
 {include:{$BACKEND_CORE_PATH}/layout/templates/footer.tpl}
