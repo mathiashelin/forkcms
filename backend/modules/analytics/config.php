@@ -11,19 +11,16 @@
  * This is the configuration-object for the analytics module
  *
  * @author Annelies Van Extergem <annelies.vanextergem@netlash.com>
+ * @author Dieter Vanden Eynde <dieter.vandeneynde@wijs.be>
  */
 class BackendAnalyticsConfig extends BackendBaseConfig
 {
 	/**
-	 * The default action
-	 *
 	 * @var	string
 	 */
 	protected $defaultAction = 'index';
 
 	/**
-	 * The disabled actions
-	 *
 	 * @var	array
 	 */
 	protected $disabledActions = array();
@@ -40,11 +37,7 @@ class BackendAnalyticsConfig extends BackendBaseConfig
 		$error = false;
 		$action = Spoon::exists('url') ? Spoon::get('url')->getAction() : null;
 
-		// analytics session token
-		if(BackendModel::getModuleSetting('analytics', 'session_token') === null) $error = true;
-
-		// analytics table id
-		if(BackendModel::getModuleSetting('analytics', 'table_id') === null) $error = true;
+		if(BackendModel::getModuleSetting('analytics', 'account_id') == '') $error = true;
 
 		// missing settings, so redirect to the index-page to show a message (except on the index- and settings-page)
 		if($error && $action != 'settings' && $action != 'index')
