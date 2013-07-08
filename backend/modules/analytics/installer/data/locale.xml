@@ -515,7 +515,7 @@
         <translation language="es"><![CDATA[visitas]]></translation>
         <translation language="uk"><![CDATA[Відвідувань]]></translation>
       </item>
-      <item type="error" name="AnalyseNoSessionToken">
+      <item type="error" name="AnalyseNoAccountId">
         <translation language="nl"><![CDATA[Er is nog geen Google analytics account gekoppeld. <a href="%1$s">Configureer</a>]]></translation>
         <translation language="en"><![CDATA[There is no link with a Google analytics account yet. <a href="%1$s">Configure</a>]]></translation>
         <translation language="it"><![CDATA[Non c'è ancora nessun collegamento ad un account Google Analytics. <a href="%1$s">Aggiungilo</a>]]></translation>
@@ -527,18 +527,6 @@
         <translation language="es"><![CDATA[Aún no hay ninguna cuenta Google analytics vinculada. <a href="%1$s">Configurar</a>]]></translation>
         <translation language="lt"><![CDATA[Nieko nesusieta su Google Analytics paskyra, <a href="%1$s">susieti</a>]]></translation>
         <translation language="sv"><![CDATA[Det finns ingen länk med ett Google analytics konto än. <en href="%1$s">Konfigurera</en>]]></translation>
-      </item>
-      <item type="error" name="AnalyseNoTableId">
-        <translation language="nl"><![CDATA[Er is nog geen analytics website profiel gekoppeld. <a href="%1$s">Configureer</a>]]></translation>
-        <translation language="en"><![CDATA[There is no link with an analytics website profile yet. <a href="%1$s">Configure</a>]]></translation>
-        <translation language="it"><![CDATA[Non c'è ancora nessun collegamento ad un profilo Analytics. <a href="%1$s">Aggiungilo</a>]]></translation>
-        <translation language="ru"><![CDATA[Нет соединения с Аналитикой сайта. <a href="%1$s">Настроить</a>]]></translation>
-        <translation language="zh"><![CDATA[尚未连接到任何统计分析网站档案。 <a href="%1$s">设置</a>]]></translation>
-        <translation language="hu"><![CDATA[Nincs még összekapcsolva az Analytics weboldal profillal. <a href="%1$s">Beállítás</a>]]></translation>
-        <translation language="fr"><![CDATA[Il n'y a pas encore de lien avec un site de profil Analytics <a href="%1$s">Configurer</a>]]></translation>
-        <translation language="de"><![CDATA[Es wurde noch keine Verbindung zu einem Analytics-Website-Profil hergestellt. <a href="%1$s">Konfigurieren</a>]]></translation>
-        <translation language="es"><![CDATA[Aún no hay ningun perfil de sitio web analytics vinculado. <a href="%1$s">Configurar</a>]]></translation>
-        <translation language="sv"><![CDATA[Det finns ingen länk med ett analytics webbplats profil än. <en href="%1$s">Konfigurera</en>]]></translation>
       </item>
       <item type="error" name="InvalidApiKey">
         <translation language="nl"><![CDATA[Dit is een ongeldige API key.]]></translation>
