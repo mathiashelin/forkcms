@@ -44,34 +44,53 @@
 
 		{* Choose a profile/account *}
 		{option:step3}
-			{option:hasProfiles}
-				<p>{$msgLinkWebsiteProfile}</p>
-				{form:linkProfile}
-					<div class="oneLiner fakeP">
+			<p>{$msgLinkWebsiteProfile}</p>
+			{form:linkProfile}
+				{option:hasProfiles}
+					<div class="fakeP">
 						<p>
-							{$ddmProfiles} {$ddmProfilesError}
+							<label for="gaAccount">1. {$msgChooseAnAccount}</label>
+							{$ddmGaAccount} {$ddmGaAccountError}
 						</p>
+						<p id="jsGaWebProperties" style="display: none;">
+							<label for="webProperty">2. {$msgChooseAWebProperty}</label>
+							{$ddmWebProperty} {$ddmWebPropertyError}
+						</p>
+						<div id="jsGaProfiles" style="display: none;">
+							<p><label for="profile">3. {$msgChooseAProfile}</label></p>
+							<ul id="jsProfiles">
+								{iteration:profile}
+									<li><label for="{$profile.id}">{$profile.rbtProfile}</label></li>
+								{/iteration:profile}
+							</ul>
+							{$rbtProfileError}
+						</div>
+					</div>
+				{/option:hasProfiles}
+
+				{option:!hasProfiles}
+					<p>{$msgNoAccounts}</p>
+				{/option:!hasProfiles}
+
+				<div class="oneLiner">
+					{option:hasProfiles}
 						<div class="buttonHolder">
 							<input id="submitForm" class="inputButton button mainButton" type="submit" name="submitForm" value="{$lblLinkThisProfile|ucfirst}" />
 						</div>
+					{/option:hasProfiles}
+					<div class="buttonHolder">
+						<a href="{$var|geturl:'settings'}&amp;remove=session" data-message-id="confirmDeleteSession" class="askConfirmation button inputButton"><span>{$msgRemoveAccountLink}</span></a>
 					</div>
-				{/form:linkProfile}
-			{/option:hasProfiles}
-
-			{option:!hasProfiles}
-				<p>{$msgNoAccounts}</p>
-			{/option:!hasProfiles}
-
-			<div class="buttonHolder">
-				<a href="{$var|geturl:'settings'}&amp;remove=session" data-message-id="confirmDeleteSession" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveAccountLink}</span></a>
-			</div>
+				</div>
+			{/form:linkProfile}
 		{/option:step3}
 
 		{* Account is linked, display info *}
 		{option:step4}
 			<p>
 				{$lblLinkedAccount|ucfirst}: <strong>{$accountName}</strong><br />
-				{$lblLinkedProfile|ucfirst}: <strong>{$webPropertyName} ({$webPropertyId})</strong>
+				{$lblLinkedWebProperty|ucfirst}: <strong>{$webPropertyName} ({$webPropertyId})</strong><br />
+				{$lblLinkedProfile|ucfirst}: <strong>{$webProfileName}</strong>
 			</p>
 			<div class="buttonHolder">
 				<a href="{$var|geturl:'settings'}&amp;remove=session" data-message-id="confirmDeleteSession" class="askConfirmation submitButton button inputButton"><span>{$msgRemoveAccountLink}</span></a>

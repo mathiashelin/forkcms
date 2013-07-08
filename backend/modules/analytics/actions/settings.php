@@ -37,7 +37,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 	 *
 	 * @var	string
 	 */
-	private $accountId, $accountName, $webPropertyId, $webPropertyName;
+	private $accountId, $accountName, $webPropertyId, $webPropertyName, $profileId, $profileName;
 
 	/**
 	 * The session token
@@ -75,13 +75,13 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		}
 
 		// a token is available, display accounts
-		elseif(!empty($this->token) && empty($this->accountId))
+		elseif(!empty($this->token) && empty($this->profileId))
 		{
 			$this->loadStep3();
 		}
 
 		// account is linked, display info
-		elseif(!empty($this->accountId))
+		elseif(!empty($this->profileId))
 		{
 			$this->loadStep4();
 		}
@@ -115,6 +115,8 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$this->accountName = BackendModel::getModuleSetting($this->getModule(), 'account_name');
 		$this->webPropertyId = BackendModel::getModuleSetting($this->getModule(), 'web_property_id');
 		$this->webPropertyName = BackendModel::getModuleSetting($this->getModule(), 'web_property_name');
+		$this->profileId = BackendModel::getModuleSetting($this->getModule(), 'profile_id');
+		$this->profileName = BackendModel::getModuleSetting($this->getModule(), 'profile_name');
 	}
 
 	/**
@@ -175,54 +177,89 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 	 */
 	private function loadStep3()
 	{
+		/*
+		 * An accounts tree will be build and made accessible to our javascript. Via javascript we will
+		 * dynamically (re)build our form elements based on the selection. We however add all possible
+		 * values to the dropdowns so we can validate if the POSTed value is valid.
+		 */
+		$accountsTree = array();
+		$accountsValues = array();
+		$webPropertiesValues = array();
+		$profilesValues = array();
 		$accounts = $this->service->management_accounts->listManagementAccounts();
-		$webProperties = $this->service->management_webproperties->listManagementWebproperties("~all");
+		$webProperties = $this->service->management_webproperties->listManagementWebproperties('~all');
+		$profiles = $this->service->management_profiles->listManagementProfiles('~all', '~all');
 
-		$webPropertiesByAccount = array();
 		foreach($accounts->items as $account)
 		{
-			$webPropertiesByAccount[$account->id] = array(
-				'label' => $account->name,
-				'properties' => array()
+			$accountsTree[$account->getId()] = array(
+				'id' => $account->getId(),
+				'name' => $account->getName(),
+				'createdOn' => $account->getCreated(),
+				'webProperties' => array()
 			);
+
+			$accountsValues[$account->getId()] = $account->getName();
 		}
 		foreach($webProperties->items as $webProperty)
 		{
-			$webPropertiesByAccount[$webProperty->accountId]['properties'][$webProperty->id] = $webProperty->name . ' (' . $webProperty->id . ')';
-		}
+			/*
+			 * The API also returns a webproperty which represents the parent account. This webproperty will
+			 * have no profiles and therefor will never be able to be linked to Fork. This webproperty is also
+			 * not displayed in Google Analytics. To prevent confusion, we strip it here.
+			 */
+			if($webProperty->getProfileCount() == 0) continue;
 
-		$profilesValues = array();
-		foreach($webPropertiesByAccount as $id => $account)
+			$accountsTree[$webProperty->getAccountId()]['webProperties'][$webProperty->getId()] = array(
+				'id' => $webProperty->getId(),
+				'internalId' => $webProperty->getInternalWebPropertyId(),
+				'name' => $webProperty->getName(),
+				'websiteUrl' => $webProperty->getWebsiteUrl(),
+				'profilesCount' => (int) $webProperty->getProfileCount(),
+				'profiles' => array(),
+				'createdOn' => $webProperty->getCreated()
+			);
+
+			$webPropertiesValues[$webProperty->getId()] = $webProperty->getName();
+		}
+		foreach($profiles->items as $profile)
 		{
-			$profilesValues[$id] = $account['properties'];
-		}
+			$accountsTree[$profile->getAccountId()]['webProperties'][$profile->getWebPropertyId()]['profiles'][$profile->getId()] = array(
+				'id' => $profile->getId(),
+				'name' => $profile->getName(),
+				'createdOn' => $profile->getCreated()
+			);
 
+			$profilesValues[] = array('value' => $profile->getId(), 'label' => $profile->getName());
+		}
+		$this->header->addJsData($this->getModule(), 'gaAccountTree', $accountsTree);
+
+		// form will be (re)build via javascript
 		$frm = new BackendForm('linkProfile');
-		$frm->addDropdown('profiles', $profilesValues)->setDefaultElement('');
+		$frm->addDropdown('ga_account', $accountsValues)->setDefaultElement('');
+		$frm->addDropdown('web_property', $webPropertiesValues)->setDefaultElement('');
+		$frm->addRadiobutton('profile', $profilesValues);
 
 		if($frm->isSubmitted())
 		{
-			$frm->getField('profiles')->isFilled(BL::err('FieldIsRequired'));
+			$frm->getField('ga_account')->isFilled(BL::err('FieldIsRequired'));
+			$frm->getField('web_property')->isFilled(BL::err('FieldIsRequired'));
+			$frm->getField('profile')->isFilled(BL::err('FieldIsRequired'));
 
 			if($frm->isCorrect())
 			{
-				$accountId = null;
-				$accountName = null;
-				$webPropertyId = $frm->getField('profiles')->getValue();
-				$webPropertyName = null;
-				foreach($webProperties->items as $webProperty)
+				$accountId = $frm->getField('ga_account')->getValue();
+				$accountName = $accountsValues[$accountId];
+				$webPropertyId = $frm->getField('web_property')->getValue();
+				$webPropertyName = $webPropertiesValues[$webPropertyId];
+				$profileId = $frm->getField('profile')->getValue();
+
+				foreach($profilesValues as $profile)
 				{
-					if($webProperty->id == $webPropertyId)
+					if($profile['value'] == $profileId)
 					{
-						$webPropertyName = $webProperty->name;
-						$accountId = $webProperty->accountId;
-					}
-				}
-				foreach($accounts->items as $account)
-				{
-					if($account->id == $accountId)
-					{
-						$accountName = $account->name;
+						$profileName = $profile['label'];
+						break;
 					}
 				}
 
@@ -230,13 +267,15 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 				BackendModel::setModuleSetting($this->getModule(), 'account_name', $accountName);
 				BackendModel::setModuleSetting($this->getModule(), 'web_property_id', $webPropertyId);
 				BackendModel::setModuleSetting($this->getModule(), 'web_property_name', $webPropertyName);
+				BackendModel::setModuleSetting($this->getModule(), 'profile_id', $profileId);
+				BackendModel::setModuleSetting($this->getModule(), 'profile_name', $profileName);
 
 				$this->redirect(BackendModel::createURLForAction($this->getAction()) . '&report=saved');
 			}
 		}
 
 		$this->tpl->assign('step3', true);
-		$this->tpl->assign('hasProfiles', (count($profilesValues) > 0));
+		$this->tpl->assign('hasProfiles', (count($accountsTree) > 0));
 		$frm->parse($this->tpl);
 	}
 
@@ -278,6 +317,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$frm->parse($this->tpl);
 		$this->tpl->assign('step4', true);
 		$this->tpl->assign('accountName', $this->accountName);
+		$this->tpl->assign('webProfileName', $this->profileName);
 		$this->tpl->assign('webPropertyName', $this->webPropertyName);
 		$this->tpl->assign('webPropertyId', $this->webPropertyId);
 	}
@@ -294,6 +334,8 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		BackendModel::setModuleSetting($this->getModule(), 'account_name', null);
 		BackendModel::setModuleSetting($this->getModule(), 'web_property_id', null);
 		BackendModel::setModuleSetting($this->getModule(), 'web_property_name', null);
+		BackendModel::setModuleSetting($this->getModule(), 'profile_id', null);
+		BackendModel::setModuleSetting($this->getModule(), 'profile_name', null);
 		BackendModel::setModuleSetting($this->getModule(), 'universal_analytics', null);
 
 		BackendAnalyticsModel::removeCacheFiles();

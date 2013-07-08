@@ -15,6 +15,7 @@ jsBackend.analytics =
 		$chartDoubleMetricPerDay = $('#chartDoubleMetricPerDay');
 		$chartSingleMetricPerDay = $('#chartSingleMetricPerDay');
 
+		jsBackend.analytics.settings.init();
 		jsBackend.analytics.charts.init();
 		jsBackend.analytics.chartDoubleMetricPerDay.init();
 		jsBackend.analytics.chartPieChart.init();
@@ -465,6 +466,124 @@ jsBackend.analytics.resize =
 				$chartWidget.html('&nbsp;');
 				jsBackend.analytics.chartWidget.create();
 			}
+		}
+	}
+}
+
+jsBackend.analytics.settings =
+{
+	accountTree: [],
+
+	init: function()
+	{
+		jsBackend.analytics.settings.initAccountsTree();
+	},
+
+	initAccountsTree: function()
+	{
+		$accountDropDown = $('select#gaAccount');
+		$webPropertyDropDown = $('select#webProperty');
+		$profileWrapper = $('#jsProfiles');
+
+		if($accountDropDown.length > 0 && $webPropertyDropDown.length > 0 && $profileWrapper.length > 0)
+		{
+			jsBackend.analytics.settings.accountTree = jsBackend.data.get('analytics.gaAccountTree');
+
+			jsBackend.analytics.settings.fillWebProperties($webPropertyDropDown, $accountDropDown.val());
+			$accountDropDown.on('change', function()
+			{
+				jsBackend.analytics.settings.fillWebProperties($webPropertyDropDown, $(this).val());
+			});
+
+			jsBackend.analytics.settings.fillProfiles($profileWrapper, $webPropertyDropDown.val());
+			$webPropertyDropDown.on('change', function()
+			{
+				jsBackend.analytics.settings.fillProfiles($profileWrapper, $(this).val());
+			});
+		}
+	},
+
+	/**
+	 * Fills the webproperties dropdown based on the selected account.
+	 *
+	 * @param $webProperty
+	 * @param accountId
+	 */
+	fillWebProperties: function($webProperty, accountId)
+	{
+		// remember selection so we can set it as selected again after rebuilding (happens mostly after POST)
+		selectedPropertyId = $webProperty.val();
+
+		// clear before repopulating
+		$webProperty.find('option').remove();
+
+		$('#jsGaProfiles').hide();
+
+		// fill with properties of the selected account
+		if(accountId != '')
+		{
+			$('#jsGaWebProperties').show();
+
+			$webProperty.append($('<option />').val('').text(''));
+			jQuery.each(jsBackend.analytics.settings.accountTree, function()
+			{
+				if(this.id == accountId)
+				{
+					jQuery.each(this.webProperties, function()
+					{
+						$webProperty.append($('<option />').val(this.id).text(this.name + ' (' + this.id + ')'));
+					});
+				}
+			});
+
+			$webProperty.val(selectedPropertyId);
+		}
+		else
+		{
+			$('#jsGaWebProperties').hide();
+		}
+	},
+
+	/**
+	 * Builds a list of radiobuttons with profiles off the selected webproperty.
+	 *
+	 * @param $profile
+	 * @param webPropertyId
+	 */
+	fillProfiles: function($profile, webPropertyId)
+	{
+		// remember selection so we can set it as selected again after rebuilding (happens mostly after POST)
+		selectedProfileId = $profile.find('input[name=profile]:checked').val();
+
+		// clear before repopulating
+		$profile.empty();
+
+		// fill with profiles of the selected web property
+		if(webPropertyId != '')
+		{
+			$('#jsGaProfiles').show();
+
+			jQuery.each(jsBackend.analytics.settings.accountTree, function()
+			{
+				jQuery.each(this.webProperties, function()
+				{
+					if(this.id == webPropertyId)
+					{
+						jQuery.each(this.profiles, function()
+						{
+							$profile.append(
+								$('<li><label for="profile' + this.id + '"><input type="radio" name="profile" value="' + this.id + '" id="profile' + this.id + '" /> ' + this.name + '</label></li>')
+							);
+						});
+					}
+				});
+			});
+
+			$('#profile' + selectedProfileId).prop('checked', true);
+		}
+		else
+		{
+			$('#jsGaProfiles').hide();
 		}
 	}
 }
