@@ -520,7 +520,7 @@ jsBackend.analytics.settings =
 		$('#jsGaProfiles').hide();
 
 		// fill with properties of the selected account
-		if(accountId != '')
+		if(accountId)
 		{
 			$('#jsGaWebProperties').show();
 
@@ -559,7 +559,7 @@ jsBackend.analytics.settings =
 		$profile.empty();
 
 		// fill with profiles of the selected web property
-		if(webPropertyId != '')
+		if(webPropertyId)
 		{
 			$('#jsGaProfiles').show();
 
