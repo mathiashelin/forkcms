@@ -529,7 +529,7 @@ jsBackend.analytics.settings =
 			{
 				if(this.id == accountId)
 				{
-					jQuery.each(this.webProperties, function()
+					jQuery.each(this.web_properties, function()
 					{
 						$webProperty.append($('<option />').val(this.id).text(this.name + ' (' + this.id + ')'));
 					});
@@ -565,7 +565,7 @@ jsBackend.analytics.settings =
 
 			jQuery.each(jsBackend.analytics.settings.accountTree, function()
 			{
-				jQuery.each(this.webProperties, function()
+				jQuery.each(this.web_properties, function()
 				{
 					if(this.id == webPropertyId)
 					{

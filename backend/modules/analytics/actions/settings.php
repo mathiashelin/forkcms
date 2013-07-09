@@ -117,6 +117,11 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$this->webPropertyName = BackendModel::getModuleSetting($this->getModule(), 'web_property_name');
 		$this->profileId = BackendModel::getModuleSetting($this->getModule(), 'profile_id');
 		$this->profileName = BackendModel::getModuleSetting($this->getModule(), 'profile_name');
+
+		$this->getContainer()->set('google.client', $this->client);
+		$this->getContainer()->set('google.analytics.service', $this->service);
+		$service = new BackendAnalyticsService($this->getKernel());
+		$this->getContainer()->set('fork.analytics.service', $service);
 	}
 
 	/**
@@ -186,20 +191,15 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$accountsValues = array();
 		$webPropertiesValues = array();
 		$profilesValues = array();
-		$accounts = $this->service->management_accounts->listManagementAccounts();
+		$accounts = $this->get('fork.analytics.service')->getAccounts();
 		$webProperties = $this->service->management_webproperties->listManagementWebproperties('~all');
 		$profiles = $this->service->management_profiles->listManagementProfiles('~all', '~all');
 
-		foreach($accounts->items as $account)
+		foreach($accounts as $account)
 		{
-			$accountsTree[$account->getId()] = array(
-				'id' => $account->getId(),
-				'name' => $account->getName(),
-				'createdOn' => $account->getCreated(),
-				'webProperties' => array()
-			);
-
-			$accountsValues[$account->getId()] = $account->getName();
+			$account['web_properties'] = array();
+			$accountsTree[$account['id']] = $account;
+			$accountsValues[$account['id']] = $account['name'];
 		}
 		foreach($webProperties->items as $webProperty)
 		{
@@ -210,7 +210,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 			 */
 			if($webProperty->getProfileCount() == 0) continue;
 
-			$accountsTree[$webProperty->getAccountId()]['webProperties'][$webProperty->getId()] = array(
+			$accountsTree[$webProperty->getAccountId()]['web_properties'][$webProperty->getId()] = array(
 				'id' => $webProperty->getId(),
 				'internalId' => $webProperty->getInternalWebPropertyId(),
 				'name' => $webProperty->getName(),
@@ -224,7 +224,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		}
 		foreach($profiles->items as $profile)
 		{
-			$accountsTree[$profile->getAccountId()]['webProperties'][$profile->getWebPropertyId()]['profiles'][$profile->getId()] = array(
+			$accountsTree[$profile->getAccountId()]['web_properties'][$profile->getWebPropertyId()]['profiles'][$profile->getId()] = array(
 				'id' => $profile->getId(),
 				'name' => $profile->getName(),
 				'createdOn' => $profile->getCreated()
