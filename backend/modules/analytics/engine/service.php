@@ -61,4 +61,53 @@ class BackendAnalyticsService extends KernelLoader
 
 		return $accounts;
 	}
+
+	/**
+	 * @param int[optional] $startIndex
+	 * @return array
+	 */
+	public function getWebProperties($startIndex = 1)
+	{
+		$webProperties = array();
+
+		$params = array('start-index' => $startIndex);
+		$results = $this->gaService->management_webproperties->listManagementWebproperties('~all', $params);
+
+		if($results !== null)
+		{
+			foreach($results->getItems() as $webProperty)
+			{
+				/*
+				 * The API also returns a webproperty which represents the parent account. This webproperty will
+				 * have no profiles and therefor will never be able to be linked to Fork. This webproperty is also
+				 * not displayed in Google Analytics. To prevent confusion, we strip it here.
+				 *
+				 * (By preventing confusion, I probably caused confusion.)
+				 */
+				if($webProperty->getProfileCount() == 0) continue;
+
+				$createdOn = new DateTime($webProperty->getCreated());
+				$updatedOn = new DateTime($webProperty->getUpdated());
+
+				$webProperties[] = array(
+					'id' => $webProperty->getId(),
+					'internal_id' => $webProperty->getInternalWebPropertyId(),
+					'account_id' => $webProperty->getAccountId(),
+					'name' => $webProperty->getName(),
+					'websiteUrl' => $webProperty->getWebsiteUrl(),
+					'profilesCount' => (int) $webProperty->getProfileCount(),
+					'created_on' => $createdOn->getTimestamp(),
+					'updated_on' => $updatedOn->getTimestamp()
+				);
+			}
+
+			// there is a next page, go fetch
+			if(($startIndex + $results->getItemsPerPage()) <= $results->getTotalResults())
+			{
+				$webProperties = array_merge($webProperties, $this->getWebProperties($startIndex + $results->getItemsPerPage()));
+			}
+		}
+
+		return $webProperties;
+	}
 }

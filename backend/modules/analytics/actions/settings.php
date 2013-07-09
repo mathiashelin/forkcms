@@ -192,7 +192,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$webPropertiesValues = array();
 		$profilesValues = array();
 		$accounts = $this->get('fork.analytics.service')->getAccounts();
-		$webProperties = $this->service->management_webproperties->listManagementWebproperties('~all');
+		$webProperties = $this->get('fork.analytics.service')->getWebProperties();
 		$profiles = $this->service->management_profiles->listManagementProfiles('~all', '~all');
 
 		foreach($accounts as $account)
@@ -201,26 +201,11 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 			$accountsTree[$account['id']] = $account;
 			$accountsValues[$account['id']] = $account['name'];
 		}
-		foreach($webProperties->items as $webProperty)
+		foreach($webProperties as $webProperty)
 		{
-			/*
-			 * The API also returns a webproperty which represents the parent account. This webproperty will
-			 * have no profiles and therefor will never be able to be linked to Fork. This webproperty is also
-			 * not displayed in Google Analytics. To prevent confusion, we strip it here.
-			 */
-			if($webProperty->getProfileCount() == 0) continue;
-
-			$accountsTree[$webProperty->getAccountId()]['web_properties'][$webProperty->getId()] = array(
-				'id' => $webProperty->getId(),
-				'internalId' => $webProperty->getInternalWebPropertyId(),
-				'name' => $webProperty->getName(),
-				'websiteUrl' => $webProperty->getWebsiteUrl(),
-				'profilesCount' => (int) $webProperty->getProfileCount(),
-				'profiles' => array(),
-				'createdOn' => $webProperty->getCreated()
-			);
-
-			$webPropertiesValues[$webProperty->getId()] = $webProperty->getName();
+			$webProperty['profiles'] = array();
+			$accountsTree[$webProperty['account_id']]['web_properties'][$webProperty['id']] = $webProperty;
+			$webPropertiesValues[$webProperty['id']] = $webProperty['name'];
 		}
 		foreach($profiles->items as $profile)
 		{
