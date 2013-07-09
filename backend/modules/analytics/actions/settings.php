@@ -193,7 +193,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$profilesValues = array();
 		$accounts = $this->get('fork.analytics.service')->getAccounts();
 		$webProperties = $this->get('fork.analytics.service')->getWebProperties();
-		$profiles = $this->service->management_profiles->listManagementProfiles('~all', '~all');
+		$profiles = $this->get('fork.analytics.service')->getProfiles();
 
 		foreach($accounts as $account)
 		{
@@ -207,15 +207,10 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 			$accountsTree[$webProperty['account_id']]['web_properties'][$webProperty['id']] = $webProperty;
 			$webPropertiesValues[$webProperty['id']] = $webProperty['name'];
 		}
-		foreach($profiles->items as $profile)
+		foreach($profiles as $profile)
 		{
-			$accountsTree[$profile->getAccountId()]['web_properties'][$profile->getWebPropertyId()]['profiles'][$profile->getId()] = array(
-				'id' => $profile->getId(),
-				'name' => $profile->getName(),
-				'createdOn' => $profile->getCreated()
-			);
-
-			$profilesValues[] = array('value' => $profile->getId(), 'label' => $profile->getName());
+			$accountsTree[$profile['account_id']]['web_properties'][$profile['web_property_id']]['profiles'][$profile['id']] = $profile;
+			$profilesValues[] = array('value' => $profile['id'], 'label' => $profile['name']);
 		}
 		$this->header->addJsData($this->getModule(), 'gaAccountTree', $accountsTree);
 

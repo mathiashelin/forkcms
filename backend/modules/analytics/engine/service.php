@@ -66,6 +66,45 @@ class BackendAnalyticsService extends KernelLoader
 	 * @param int[optional] $startIndex
 	 * @return array
 	 */
+	public function getProfiles($startIndex = 1)
+	{
+		$profiles = array();
+
+		$params = array('start-index' => $startIndex);
+		$results = $this->gaService->management_profiles->listManagementProfiles('~all', '~all', $params);
+
+		if($results !== null)
+		{
+			foreach($results->getItems() as $profile)
+			{
+				$createdOn = new DateTime($profile->getCreated());
+				$updatedOn = new DateTime($profile->getUpdated());
+
+				$profiles[] = array(
+					'id' => $profile->getId(),
+					'account_id' => $profile->getAccountId(),
+					'web_property_id' => $profile->getWebPropertyId(),
+					'name' => $profile->getName(),
+					'websiteUrl' => $profile->getWebsiteUrl(),
+					'created_on' => $createdOn->getTimestamp(),
+					'updated_on' => $updatedOn->getTimestamp()
+				);
+			}
+
+			// there is a next page, go fetch
+			if(($startIndex + $results->getItemsPerPage()) <= $results->getTotalResults())
+			{
+				$profiles = array_merge($profiles, $this->getProfiles($startIndex + $results->getItemsPerPage()));
+			}
+		}
+
+		return $profiles;
+	}
+
+	/**
+	 * @param int[optional] $startIndex
+	 * @return array
+	 */
 	public function getWebProperties($startIndex = 1)
 	{
 		$webProperties = array();
