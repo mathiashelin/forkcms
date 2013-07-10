@@ -16,16 +16,6 @@
 class BackendAnalyticsSettings extends BackendBaseActionEdit
 {
 	/**
-	 * @var Google_Client
-	 */
-	private $client;
-
-	/**
-	 * @var Google_AnalyticsService
-	 */
-	private $service;
-
-	/**
 	 * Google API authentication info.
 	 *
 	 * @var string
@@ -91,25 +81,25 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 
 	private function loadData()
 	{
-		$this->client = new Google_Client();
-		$this->service = new Google_AnalyticsService($this->client);
+		$client = new Google_Client();
+		$service = new Google_AnalyticsService($client);
 
-		$this->client->setApplicationName(BackendModel::getModuleSetting('core', 'site_title_' . BL::getWorkingLanguage()));
-		$this->client->setScopes(array('https://www.googleapis.com/auth/analytics.readonly'));
-		$this->client->setUseObjects(true);
+		$client->setApplicationName(BackendModel::getModuleSetting('core', 'site_title_' . BL::getWorkingLanguage()));
+		$client->setScopes(array('https://www.googleapis.com/auth/analytics.readonly'));
+		$client->setUseObjects(true);
 
 		// remove dynamic parameters so it matches exactly with the redirect uri set up in Google Console (will fail otherwise)
 		$redirectUrl = SITE_URL . BackendModel::createURLForAction($this->getAction());
 		$redirectUrl = substr($redirectUrl, 0, stripos($redirectUrl, '?'));
-		$this->client->setRedirectUri($redirectUrl);
+		$client->setRedirectUri($redirectUrl);
 
 		$this->clientId = BackendModel::getModuleSetting($this->getModule(), 'client_id');
 		$this->clientSecret = BackendModel::getModuleSetting($this->getModule(), 'client_secret');
-		if(!empty($this->clientId)) $this->client->setClientId($this->clientId);
-		if(!empty($this->clientSecret)) $this->client->setClientSecret($this->clientSecret);
+		if(!empty($this->clientId)) $client->setClientId($this->clientId);
+		if(!empty($this->clientSecret)) $client->setClientSecret($this->clientSecret);
 
 		$this->token = BackendModel::getModuleSetting($this->getModule(), 'token');
-		if(!empty($this->token)) $this->client->setAccessToken($this->token);
+		if(!empty($this->token)) $client->setAccessToken($this->token);
 
 		$this->accountId = BackendModel::getModuleSetting($this->getModule(), 'account_id');
 		$this->accountName = BackendModel::getModuleSetting($this->getModule(), 'account_name');
@@ -118,8 +108,8 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$this->profileId = BackendModel::getModuleSetting($this->getModule(), 'profile_id');
 		$this->profileName = BackendModel::getModuleSetting($this->getModule(), 'profile_name');
 
-		$this->getContainer()->set('google.client', $this->client);
-		$this->getContainer()->set('google.analytics.service', $this->service);
+		$this->getContainer()->set('google.client', $client);
+		$this->getContainer()->set('google.analytics.service', $service);
 		$service = new BackendAnalyticsService($this->getKernel());
 		$this->getContainer()->set('fork.analytics.service', $service);
 	}
@@ -147,10 +137,10 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 				BackendModel::setModuleSetting($this->getModule(), 'client_id', $this->clientId);
 				BackendModel::setModuleSetting($this->getModule(), 'client_secret', $this->clientSecret);
 
-				$this->client->setClientId($this->clientId);
-				$this->client->setClientSecret($this->clientSecret);
+				$this->get('google.client')->setClientId($this->clientId);
+				$this->get('google.client')->setClientSecret($this->clientSecret);
 
-				$this->redirect($this->client->createAuthUrl());
+				$this->redirect($this->get('google.client')->createAuthUrl());
 			}
 		}
 
@@ -166,9 +156,9 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 	{
 		if(isset($_GET['code']))
 		{
-			$this->client->authenticate();
+			$this->get('google.client')->authenticate();
 
-			$this->token = $this->client->getAccessToken();
+			$this->token = $this->get('google.client')->getAccessToken();
 
 			BackendModel::setModuleSetting($this->getModule(), 'token', $this->token);
 
