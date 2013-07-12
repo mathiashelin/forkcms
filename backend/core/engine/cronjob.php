@@ -140,14 +140,11 @@ class BackendCronjob extends BackendBaseObject implements ApplicationInterface
 		// define the Named Application
 		if(!defined('NAMED_APPLICATION')) define('NAMED_APPLICATION', 'backend');
 
-		// set the module
 		$this->setModule(SpoonFilter::getGetValue('module', null, ''));
-
-		// set the requested file
 		$this->setAction(SpoonFilter::getGetValue('action', null, ''));
-
-		// set the language
 		$this->setLanguage(SpoonFilter::getGetValue('language', FrontendLanguage::getActiveLanguages(), SITE_DEFAULT_LANGUAGE));
+
+		$this->loadConfig();
 
 		// mark cronjob as run
 		$cronjobs = (array) BackendModel::getModuleSetting('core', 'cronjobs');
@@ -155,6 +152,47 @@ class BackendCronjob extends BackendBaseObject implements ApplicationInterface
 		BackendModel::setModuleSetting('core', 'cronjobs', array_unique($cronjobs));
 
 		$this->execute();
+	}
+
+	/**
+	 * Load the config file for the requested module.
+	 * In the config file we have to find disabled actions, the constructor will read the folder and set possible actions
+	 * Other configurations will be stored in it also.
+	 */
+	public function loadConfig()
+	{
+		// check if module path is not yet defined
+		if(!defined('BACKEND_MODULE_PATH'))
+		{
+			// build path for core
+			if($this->getModule() == 'core') define('BACKEND_MODULE_PATH', BACKEND_PATH . '/' . $this->getModule());
+
+			// build path to the module and define it. This is a constant because we can use this in templates.
+			else define('BACKEND_MODULE_PATH', BACKEND_MODULES_PATH . '/' . $this->getModule());
+		}
+
+		// check if the config is present? If it isn't present there is a huge problem, so we will stop our code by throwing an error
+		if(!is_file(BACKEND_MODULE_PATH . '/config.php')) {
+			throw new BackendException('The configfile for the module (' . $this->getModule() . ') can\'t be found.');
+		}
+
+		// build config-object-name
+		$configClassName = 'Backend' . SpoonFilter::toCamelCase($this->getModule() . '_config');
+
+		// require the config file, we validated before for existence.
+		require_once BACKEND_MODULE_PATH . '/config.php';
+
+		// validate if class exists (aka has correct name)
+		if(!class_exists($configClassName)) throw new BackendException('The config file is present, but the classname should be: ' . $configClassName . '.');
+
+		// create config-object, the constructor will do some magic
+		$this->config = new $configClassName($this->getKernel(), $this->getModule());
+
+		// require the model if it exists
+		if(is_file(BACKEND_MODULES_PATH . '/' . $this->config->getModule() . '/engine/model.php'))
+		{
+			require_once BACKEND_MODULES_PATH . '/' . $this->config->getModule() . '/engine/model.php';
+		}
 	}
 
 	/**
