@@ -47,7 +47,7 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		 * 3. catch errors or save token (as json string)
 		 * 4. fetch accounts and profiles (create dropdown)
 		 * 5. let them save the account/profile id
-		 * 6. lock it down
+		 * 6. lock it down (display linked info)
 		 */
 		$this->loadData();
 
@@ -79,39 +79,23 @@ class BackendAnalyticsSettings extends BackendBaseActionEdit
 		$this->display();
 	}
 
+	/**
+	 * Load settings required for communicating with Google Analytics.
+	 *
+	 * A nice refactoring might be to create a seperate class for the linked profile and store all
+	 * the data there.
+	 */
 	private function loadData()
 	{
-		$client = new Google_Client();
-		$service = new Google_AnalyticsService($client);
-
-		$client->setApplicationName(BackendModel::getModuleSetting('core', 'site_title_' . BL::getWorkingLanguage()));
-		$client->setScopes(array('https://www.googleapis.com/auth/analytics.readonly'));
-		$client->setUseObjects(true);
-
-		// remove dynamic parameters so it matches exactly with the redirect uri set up in Google Console (will fail otherwise)
-		$redirectUrl = SITE_URL . BackendModel::createURLForAction($this->getAction());
-		$redirectUrl = substr($redirectUrl, 0, stripos($redirectUrl, '?'));
-		$client->setRedirectUri($redirectUrl);
-
-		$this->clientId = BackendModel::getModuleSetting($this->getModule(), 'client_id');
-		$this->clientSecret = BackendModel::getModuleSetting($this->getModule(), 'client_secret');
-		if(!empty($this->clientId)) $client->setClientId($this->clientId);
-		if(!empty($this->clientSecret)) $client->setClientSecret($this->clientSecret);
-
-		$this->token = BackendModel::getModuleSetting($this->getModule(), 'token');
-		if(!empty($this->token)) $client->setAccessToken($this->token);
-
+		$this->clientId = $this->get('google.client')->getClientId();
+		$this->clientSecret = $this->get('google.client')->getClientSecret();
+		$this->token = $this->get('google.client')->getAccessToken();
 		$this->accountId = BackendModel::getModuleSetting($this->getModule(), 'account_id');
 		$this->accountName = BackendModel::getModuleSetting($this->getModule(), 'account_name');
 		$this->webPropertyId = BackendModel::getModuleSetting($this->getModule(), 'web_property_id');
 		$this->webPropertyName = BackendModel::getModuleSetting($this->getModule(), 'web_property_name');
 		$this->profileId = BackendModel::getModuleSetting($this->getModule(), 'profile_id');
 		$this->profileName = BackendModel::getModuleSetting($this->getModule(), 'profile_name');
-
-		$this->getContainer()->set('google.client', $client);
-		$this->getContainer()->set('google.analytics.service', $service);
-		$service = new BackendAnalyticsService($this->getKernel());
-		$this->getContainer()->set('fork.analytics.service', $service);
 	}
 
 	/**
