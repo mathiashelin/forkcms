@@ -37,6 +37,8 @@ class BackendAnalyticsConfig extends BackendBaseConfig
 	{
 		parent::__construct($kernel, $module);
 
+		$this->loadServices();
+
 		$error = false;
 		$action = $this->getContainer()->has('url') ? $this->getContainer()->get('url')->getAction() : null;
 
@@ -47,5 +49,40 @@ class BackendAnalyticsConfig extends BackendBaseConfig
 		{
 			SpoonHTTP::redirect(BackendModel::createURLForAction('index'));
 		}
+	}
+
+	/**
+	 * Initiate services in to the DI container so they are available in the GA module.
+	 */
+	public function loadServices()
+	{
+		$client = new Google_Client();
+		$service = new Google_AnalyticsService($client);
+
+		$client->setApplicationName(BackendModel::getModuleSetting('core', 'site_title_' . BL::getWorkingLanguage()));
+		$client->setScopes(array('https://www.googleapis.com/auth/analytics.readonly'));
+		$client->setUseObjects(true);
+
+		// redirect URL is not needed when we are not in moduleAction context
+		if($this->getContainer()->has('url'))
+		{
+			// remove dynamic parameters so it matches exactly with the redirect uri set up in Google Console (will fail otherwise)
+			$redirectUrl = SITE_URL . BackendModel::createURLForAction('settings');
+			$redirectUrl = substr($redirectUrl, 0, stripos($redirectUrl, '?'));
+			$client->setRedirectUri($redirectUrl);
+		}
+
+		$clientId = BackendModel::getModuleSetting($this->getModule(), 'client_id');
+		$clientSecret = BackendModel::getModuleSetting($this->getModule(), 'client_secret');
+		$token = BackendModel::getModuleSetting($this->getModule(), 'token');
+		if(!empty($clientId)) $client->setClientId($clientId);
+		if(!empty($clientSecret)) $client->setClientSecret($clientSecret);
+		if(!empty($token)) $client->setAccessToken($token);
+
+		BackendModel::getContainer()->set('google.client', $client);
+		BackendModel::getContainer()->set('google.analytics.service', $service);
+
+		$service = new BackendAnalyticsService($this->getKernel());
+		BackendModel::getContainer()->set('fork.analytics.service', $service);
 	}
 }
