@@ -15,6 +15,13 @@ class BackendAnalyticsService extends KernelLoader
 	private $gaService;
 
 	/**
+	 * ID used to fetch data from the API.
+	 *
+	 * @var int
+	 */
+	private $profileId;
+
+	/**
 	 * @param \Symfony\Component\HttpKernel\KernelInterface $kernel
 	 */
 	public function __construct(KernelInterface $kernel)
@@ -79,6 +86,14 @@ class BackendAnalyticsService extends KernelLoader
 		}
 
 		return $accounts;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getProfileId()
+	{
+		return $this->profileId;
 	}
 
 	/**
@@ -170,14 +185,13 @@ class BackendAnalyticsService extends KernelLoader
 	}
 
 	/**
-	 * @param $profileId
 	 * @param DateTime $startDate
 	 * @param DateTime $endDate
 	 * @param array $metrics
 	 * @param array[optional] $dimensions
 	 * @param int[optional] $startIndex
 	 */
-	public function getData($profileId, DateTime $startDate, DateTime $endDate, array $metrics, array $dimensions = null, $startIndex = 1)
+	public function getData(DateTime $startDate, DateTime $endDate, array $metrics, array $dimensions = null, $startIndex = 1)
 	{
 		$gaMetrics = array();
 		$gaDimensions = array();
@@ -192,7 +206,7 @@ class BackendAnalyticsService extends KernelLoader
 		}
 
 		$response = $this->gaService->data_ga->get(
-			'ga:' . $profileId,
+			'ga:' . $this->getProfileId(),
 			$startDate->format('Y-m-d'),
 			$endDate->format('Y-m-d'),
 			implode(',', $gaMetrics),
@@ -243,7 +257,7 @@ class BackendAnalyticsService extends KernelLoader
 			$results = array_merge(
 				$results,
 				$this->getData(
-					$profileId, $startDate, $endDate, $metrics, $dimensions,
+					$startDate, $endDate, $metrics, $dimensions,
 					$startIndex + $response->getItemsPerPage()
 				)
 			);
@@ -269,5 +283,15 @@ class BackendAnalyticsService extends KernelLoader
 			$string = str_ireplace('#ga:', '', $string);
 		}
 		return $string;
+	}
+
+	/**
+	 * Set the profile ID which should be used to fetch data.
+	 *
+	 * @param int $profileId
+	 */
+	public function setProfileId($profileId)
+	{
+		$this->profileId = $profileId;
 	}
 }

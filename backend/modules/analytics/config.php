@@ -83,6 +83,7 @@ class BackendAnalyticsConfig extends BackendBaseConfig
 		BackendModel::getContainer()->set('google.analytics.service', $service);
 
 		$service = new BackendAnalyticsService($this->getKernel());
+		$service->setProfileId(BackendModel::getModuleSetting($this->getModule(), 'profile_id'));
 		BackendModel::getContainer()->set('fork.analytics.service', $service);
 	}
 }

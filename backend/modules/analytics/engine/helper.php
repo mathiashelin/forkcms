@@ -125,7 +125,6 @@ class BackendAnalyticsHelper
 		$endDate->setTimestamp($endTimestamp);
 
 		$results = $service->getData(
-			'73513995',
 			$startDate,
 			$endDate,
 			array('pageviews', 'visitors'),
