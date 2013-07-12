@@ -149,4 +149,68 @@ class BackendAnalyticsService extends KernelLoader
 
 		return $webProperties;
 	}
+
+	/**
+	 * @param $profileId
+	 * @param DateTime $startDate
+	 * @param DateTime $endDate
+	 * @param array $metrics
+	 * @param array[optional] $dimensions
+	 */
+	public function getData($profileId, DateTime $startDate, DateTime $endDate, array $metrics, array $dimensions = null)
+	{
+		$gaMetrics = array();
+		$gaDimensions = array();
+		$gaParams = array();
+
+		// the API expects metrics/dimensions to be prefix with ga:
+		$gaMetrics = array_map(array($this, 'addGaPrefix'), $metrics);
+		if($dimensions !== null)
+		{
+			$gaDimensions = array_map(array($this, 'addGaPrefix'), $dimensions);
+			$gaParams['dimensions'] = implode(',', $gaDimensions);
+		}
+
+		$response = $this->gaService->data_ga->get(
+			'ga:' . $profileId,
+			$startDate->format('Y-m-d'),
+			$endDate->format('Y-m-d'),
+			implode(',', $gaMetrics),
+			$gaParams
+		);
+
+		// the column headers define the type of fields that are returned
+		$columnHeaders = $response->getColumnHeaders();
+		$results = array();
+		foreach($response->getRows() as $row)
+		{
+			$item = array();
+			foreach($row as $key => $value)
+			{
+				$item[$columnHeaders[$key]->getName()] = $value;
+			}
+			$results[] = $item;
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Prefixes a string with ga:.
+	 * Validates if ga: is already prefixed.
+	 *
+	 * Can be used as callback for array_map.
+	 *
+	 * @param $string
+	 * @return string
+	 */
+	protected function addGaPrefix($string)
+	{
+		// only add if it does not already start with ga:
+		if(stripos('#' . $string, '#ga:') === false)
+		{
+			$string = 'ga:' . $string;
+		}
+		return $string;
+	}
 }
