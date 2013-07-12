@@ -19,9 +19,8 @@ class BackendAnalyticsWidgetVisitors extends BackendBaseWidget
 	 */
 	public function execute()
 	{
-		// analytics session token and analytics table id
-		if(BackendModel::getModuleSetting('analytics', 'session_token', null) == '') return;
-		if(BackendModel::getModuleSetting('analytics', 'table_id', null) == '') return;
+		// is there an profile linked
+		if(BackendModel::getModuleSetting('analytics', 'profile_id', null) == '') return;
 
 		// settings are ok, set option
 		$this->tpl->assign('analyticsValidSettings', true);

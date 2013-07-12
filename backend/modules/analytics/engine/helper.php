@@ -118,33 +118,21 @@ class BackendAnalyticsHelper
 	 */
 	public static function getDashboardData($startTimestamp, $endTimestamp)
 	{
-		// get metrics
-		$metrics = array('pageviews', 'visitors');
-		$gaMetrics = array();
-		foreach($metrics as $metric) $gaMetrics[] = 'ga:' . $metric;
+		$service = BackendModel::get('fork.analytics.service');
+		$startDate = new DateTime();
+		$startDate->setTimestamp($startTimestamp);
+		$endDate = new DateTime();
+		$endDate->setTimestamp($endTimestamp);
 
-		$dimensions = 'ga:date';
-		$results = self::getGoogleAnalyticsInstance()->getAnalyticsResults($gaMetrics, $startTimestamp, $endTimestamp, $dimensions);
-		$entries = array();
+		$results = $service->getData(
+			'73513995',
+			$startDate,
+			$endDate,
+			array('pageviews', 'visitors'),
+			array('date')
+		);
 
-		// loop visitor results
-		foreach($results['entries'] as $result)
-		{
-			$timestamp = gmmktime(12, 0, 0, substr($result['date'], 4, 2), substr($result['date'], 6, 2), substr($result['date'], 0, 4));
-
-			// store metrics in correct format
-			$entry = array();
-			$entry['timestamp'] = $timestamp;
-
-			foreach($metrics as $metric)
-			{
-				$entry[$metric] = (int) $result[$metric];
-			}
-
-			$entries[] = $entry;
-		}
-
-		return $entries;
+		return $results;
 	}
 
 	/**

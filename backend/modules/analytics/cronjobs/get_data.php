@@ -74,16 +74,12 @@ class BackendAnalyticsCronjobGetData extends BackendBaseCronjob
 		// no parameters given? cronjob called
 		if($page == '' && $identifier == '' && $startTimestamp === 0 && $endTimestamp === 0)
 		{
-			// is everything still set?
-			if(BackendAnalyticsHelper::getStatus() != 'UNAUTHORIZED')
-			{
-				$interval = BackendModel::getModuleSetting('analytics', 'interval', 'week');
-				if($interval == 'week') $interval .= ' -2 days';
+			$interval = BackendModel::getModuleSetting('analytics', 'interval', 'week');
+			if($interval == 'week') $interval .= ' -2 days';
 
-				$page = 'all';
-				$startTimestamp = strtotime('-1' . $interval);
-				$endTimestamp = time();
-			}
+			$page = 'all';
+			$startTimestamp = strtotime('-1' . $interval);
+			$endTimestamp = time();
 		}
 
 		// all parameters given? curl called
@@ -123,28 +119,19 @@ class BackendAnalyticsCronjobGetData extends BackendBaseCronjob
 	 */
 	private function getDashboardData()
 	{
-		try
+		$startTimestamp = strtotime('-1 week -1 days', mktime(0, 0, 0));
+		$endTimestamp = mktime(0, 0, 0);
+
+		// get data from cache
+		$data = BackendAnalyticsModel::getDashboardDataFromCache($startTimestamp, $endTimestamp);
+
+		// nothing in cache - fetch from google and set cache
+		if(!isset($data['dashboard_data']))
 		{
-			$startTimestamp = strtotime('-1 week -1 days', mktime(0, 0, 0));
-			$endTimestamp = mktime(0, 0, 0);
-
-			// get data from cache
-			$data = BackendAnalyticsModel::getDashboardDataFromCache($startTimestamp, $endTimestamp);
-
-			// nothing in cache - fetch from google and set cache
-			if(!isset($data['dashboard_data']))
-			{
-				$data['dashboard_data']['entries'] = BackendAnalyticsHelper::getDashboardData($startTimestamp, $endTimestamp);
-			}
-
-			// update cache file
-			BackendAnalyticsModel::writeCacheFile($data, $startTimestamp, $endTimestamp);
+			$data['dashboard_data']['entries'] = BackendAnalyticsHelper::getDashboardData($startTimestamp, $endTimestamp);
 		}
 
-		catch(Exception $e)
-		{
-			throw new SpoonException('Something went wrong while getting dashboard data.');
-		}
+		BackendAnalyticsModel::writeCacheFile($data, $startTimestamp, $endTimestamp);
 	}
 
 	/**
