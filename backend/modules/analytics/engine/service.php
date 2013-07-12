@@ -89,6 +89,52 @@ class BackendAnalyticsService extends KernelLoader
 	}
 
 	/**
+	 * Fetch aggregates (totals) for a date range.
+	 *
+	 * Aggregates do not contain dimensions, a key/value array will be returned.
+	 *
+	 * @param DateTime $startDate
+	 * @param DateTime $endDate
+	 * @param array $metrics
+	 * @param array[optional] $dimensions
+	 * @param array[optional] $params
+	 * @return array
+	 */
+	public function getAggregates(DateTime $startDate, DateTime $endDate, array $metrics, array $dimensions = null, array $params = null)
+	{
+		$aggregates = array();
+		$gaParams = array();
+
+		// the API expects metrics/dimensions to be prefix with ga:
+		$gaMetrics = array_map(array($this, 'addGaPrefix'), $metrics);
+		if($dimensions !== null)
+		{
+			$gaDimensions = array_map(array($this, 'addGaPrefix'), $dimensions);
+			$gaParams['dimensions'] = implode(',', $gaDimensions);
+		}
+		if($params !== null)
+		{
+			$gaParams = array_merge($gaParams, $params);
+		}
+
+		$response = $this->gaService->data_ga->get(
+			'ga:' . $this->getProfileId(),
+			$startDate->format('Y-m-d'),
+			$endDate->format('Y-m-d'),
+			implode(',', $gaMetrics),
+			$gaParams
+		);
+
+		$results = $response->getTotalsForAllResults();
+		foreach($results as $key => $value)
+		{
+			$aggregates[$this->removeGaPrefix($key)] = $value;
+		}
+
+		return $aggregates;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getProfileId()
