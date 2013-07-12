@@ -208,6 +208,8 @@ class BackendAnalyticsService extends KernelLoader
 			foreach($row as $key => $value)
 			{
 				$header = $columnHeaders[$key];
+				$name = $this->removeGaPrefix($header->getName());
+
 				switch($header->getDataType())
 				{
 					case 'INTEGER':
@@ -222,7 +224,15 @@ class BackendAnalyticsService extends KernelLoader
 						break;
 				}
 
-				$item[$this->removeGaPrefix($header->getName())] = $value;
+				// store date fields as timestamp
+				// @todo also use DateTime object here - currently causes issue with SpoonTemplate
+				if($header->getName() == 'ga:date')
+				{
+					$name = 'timestamp';
+					$value = gmmktime(12, 0, 0, substr($value, 4, 2), substr($value, 6, 2), substr($value, 0, 4));
+				}
+
+				$item[$name] = $value;
 			}
 			$results[] = $item;
 		}
