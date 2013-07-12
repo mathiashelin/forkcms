@@ -187,7 +187,22 @@ class BackendAnalyticsService extends KernelLoader
 			$item = array();
 			foreach($row as $key => $value)
 			{
-				$item[$columnHeaders[$key]->getName()] = $value;
+				$header = $columnHeaders[$key];
+				switch($header->getDataType())
+				{
+					case 'INTEGER':
+						$value = (int) $value;
+						break;
+					case 'FLOAT':
+						$value = (float) $value;
+						break;
+					case 'CURRENCY':
+					case 'STRING':
+						$value = (string) $value;
+						break;
+				}
+
+				$item[$header->getName()] = $value;
 			}
 			$results[] = $item;
 		}
