@@ -25,6 +25,25 @@ class BackendAnalyticsService extends KernelLoader
 	}
 
 	/**
+	 * Prefixes a string with ga:.
+	 * Validates if ga: is already prefixed.
+	 *
+	 * Can be used as callback for array_map.
+	 *
+	 * @param $string
+	 * @return string
+	 */
+	protected function addGaPrefix($string)
+	{
+		// only add if it does not already start with ga:
+		if(stripos('#' . $string, '#ga:') === false)
+		{
+			$string = 'ga:' . $string;
+		}
+		return $string;
+	}
+
+	/**
 	 * Get all accounts linked to the current tokens.
 	 *
 	 * @param int[optional] $offset
@@ -203,7 +222,7 @@ class BackendAnalyticsService extends KernelLoader
 						break;
 				}
 
-				$item[$header->getName()] = $value;
+				$item[$this->removeGaPrefix($header->getName())] = $value;
 			}
 			$results[] = $item;
 		}
@@ -224,20 +243,20 @@ class BackendAnalyticsService extends KernelLoader
 	}
 
 	/**
-	 * Prefixes a string with ga:.
-	 * Validates if ga: is already prefixed.
+	 * Remove ga: prefix from the beginning a string.
 	 *
 	 * Can be used as callback for array_map.
 	 *
 	 * @param $string
 	 * @return string
 	 */
-	protected function addGaPrefix($string)
+	protected function removeGaPrefix($string)
 	{
 		// only add if it does not already start with ga:
-		if(stripos('#' . $string, '#ga:') === false)
+		if(stripos('#' . $string, '#ga:') !== false)
 		{
-			$string = 'ga:' . $string;
+			$string = '#' . $string;
+			$string = str_ireplace('#ga:', '', $string);
 		}
 		return $string;
 	}
