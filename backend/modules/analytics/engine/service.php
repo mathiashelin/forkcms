@@ -156,12 +156,13 @@ class BackendAnalyticsService extends KernelLoader
 	 * @param DateTime $endDate
 	 * @param array $metrics
 	 * @param array[optional] $dimensions
+	 * @param int[optional] $startIndex
 	 */
-	public function getData($profileId, DateTime $startDate, DateTime $endDate, array $metrics, array $dimensions = null)
+	public function getData($profileId, DateTime $startDate, DateTime $endDate, array $metrics, array $dimensions = null, $startIndex = 1)
 	{
 		$gaMetrics = array();
 		$gaDimensions = array();
-		$gaParams = array();
+		$gaParams = array('start-index' => $startIndex);
 
 		// the API expects metrics/dimensions to be prefix with ga:
 		$gaMetrics = array_map(array($this, 'addGaPrefix'), $metrics);
@@ -205,6 +206,18 @@ class BackendAnalyticsService extends KernelLoader
 				$item[$header->getName()] = $value;
 			}
 			$results[] = $item;
+		}
+
+		// there is a next page, go fetch
+		if(($startIndex + $response->getItemsPerPage()) <= $response->getTotalResults())
+		{
+			$results = array_merge(
+				$results,
+				$this->getData(
+					$profileId, $startDate, $endDate, $metrics, $dimensions,
+					$startIndex + $response->getItemsPerPage()
+				)
+			);
 		}
 
 		return $results;
