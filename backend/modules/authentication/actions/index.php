@@ -115,9 +115,12 @@ class BackendAuthenticationIndex extends BackendBaseActionIndex
 					$this->frm->addError('invalid login');
 
 					// store attempt in session
+                    // You can access the request object here, use it.
 					$current = (SpoonSession::exists('backend_login_attempts')) ? (int) SpoonSession::get('backend_login_attempts') : 0;
 
 					// increment and store
+                    // add this to a variable so you can send it to your response
+                    // object.
 					SpoonSession::set('backend_login_attempts', ++$current);
 
 					// save the failed login attempt in the user's settings
@@ -129,12 +132,15 @@ class BackendAuthenticationIndex extends BackendBaseActionIndex
 			}
 
 			// check sessions
+                    // You can access the request object here, use it.
 			if(SpoonSession::exists('backend_login_attempts') && (int) SpoonSession::get('backend_login_attempts') >= 5)
 			{
 				// get previous attempt
+                    // You can access the request object here, use it.
 				$previousAttempt = (SpoonSession::exists('backend_last_attempt')) ? SpoonSession::get('backend_last_attempt') : time();
 
 				// calculate timeout
+                    // You can access the request object here, use it.
 				$timeout = 5 * ((SpoonSession::get('backend_login_attempts') - 4));
 
 				// too soon!
@@ -150,6 +156,8 @@ class BackendAuthenticationIndex extends BackendBaseActionIndex
 				else
 				{
 					// increment and store
+                    // add this to a variable so you can send it to your response
+                    // object.
 					SpoonSession::set('backend_last_attempt', time());
 				}
 
@@ -169,6 +177,8 @@ class BackendAuthenticationIndex extends BackendBaseActionIndex
 			if($this->frm->isCorrect())
 			{
 				// cleanup sessions
+                // add this to a variable so you can send it to your response
+                // object.
 				SpoonSession::delete('backend_login_attempts');
 				SpoonSession::delete('backend_last_attempt');
 
