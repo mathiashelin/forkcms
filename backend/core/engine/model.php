@@ -15,6 +15,16 @@ use Symfony\Component\Finder\Finder;
 require_once __DIR__ . '/../../../app/BaseModel.php';
 
 /**
+ * TODO:
+ * You can use the request object from the container to get the session data
+ * here.
+ *
+ * Look at http://symfony.com/doc/current/components/http_foundation/sessions.html
+ * for how to integrate it with session set. It might be a good idea to add this
+ * to the container. (dependency on session and let it call start automatically,
+ * if it's possible to specify to only do this once, although, it may not be
+ * needed as I believe it checks if it's already started or not)
+ *
  * In this file we store all generic functions that we will be using in the backend.
  *
  * @author Tijs Verkoyen <tijs@sumocoders.be>
