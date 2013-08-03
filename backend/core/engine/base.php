@@ -15,6 +15,9 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOException;
 
 /**
+ * TODO:
+ * See core model.
+ *
  * This class will be the base of the objects used in the cms
  *
  * @author Matthias Mullie <forkcms@mullie.eu>
