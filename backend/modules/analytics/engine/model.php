@@ -12,6 +12,12 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\Finder;
 
 /**
+ * TODO:
+ * In my opinion, this shouldn't even hit the session. Might be a good thing to
+ * look into using something else for this. (I see you looking at the container,
+ * but it might be something different. Although, creating/using a "cache
+ * service" through the container could be a possible way.)
+ *
  * In this file we store all generic data communication functions
  *
  * @author Annelies Van Extergem <annelies.vanextergem@netlash.com>
