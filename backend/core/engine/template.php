@@ -169,6 +169,9 @@ class BackendTemplate extends SpoonTemplate
 	}
 
 	/**
+     * TODO:
+     * Use the user here instead of using session.
+     *
 	 * Parse the authentication settings for the authenticated user
 	 */
 	private function parseAuthentication()
