@@ -807,6 +807,11 @@ class BackendAnalyticsHelper
 	}
 
 	/**
+     * TODO:
+     * I would inject the dates here through the controller instead of getting
+     * them here. Might also return the start and end date and let the session
+     * setting be handled in your controller action.
+     *
 	 * Set the dates based on GET and SESSION
 	 * GET has priority and overwrites SESSION
 	 */
@@ -817,6 +822,7 @@ class BackendAnalyticsHelper
 		$endTimestamp = (SpoonSession::exists('analytics_end_timestamp') ? SpoonSession::get('analytics_end_timestamp') : null);
 
 		// overwrite with get data if needed
+        // use empty() instead of double conditions.
 		if(isset($_GET['start_timestamp']) && $_GET['start_timestamp'] != '' && isset($_GET['end_timestamp']) && $_GET['end_timestamp'] != '')
 		{
 			// get dates
