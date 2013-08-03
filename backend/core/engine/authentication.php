@@ -155,6 +155,11 @@ class BackendAuthentication
 	}
 
 	/**
+     * TODO:
+     * Try to use the user object here, do not use the session itself.Checking
+     * rights based on session id is stupid anyways, this should just be the
+     * user id. (which simplifies the query, hooray)
+     *
 	 * Is the given action allowed for the current user
 	 *
 	 * @param string $action The action to check for.
@@ -227,6 +232,9 @@ class BackendAuthentication
 	}
 
 	/**
+     * TODO:
+     * Same as above.
+     *
 	 * Is the given module allowed for the current user
 	 *
 	 * @param string $module The module to check for.
@@ -328,6 +336,11 @@ class BackendAuthentication
 	}
 
 	/**
+     * TODO:
+     * I have no idea on how to handle the SpoonSession issue here, but you
+     * should add the user to the container. This way, you can properly get
+     * the current user in your actions by $this->get('user').
+     *
 	 * Login the user with the given credentials.
 	 * Will return a boolean that indicates if the user is logged in.
 	 *
@@ -391,6 +404,9 @@ class BackendAuthentication
 	}
 
 	/**
+     * TODO:
+     * This should be a controller action.
+     *
 	 * Logout the current user
 	 */
 	public static function logout()
