@@ -62,6 +62,10 @@ class BackendAnalyticsAddLandingPage extends BackendBaseActionAdd
 	}
 
 	/**
+     * TODO:
+     * I believe you can access the request object here, you can access sessions
+     * through the request object.
+     *
 	 * Set start and end timestamp needed to collect analytics data
 	 */
 	private function setDates()
