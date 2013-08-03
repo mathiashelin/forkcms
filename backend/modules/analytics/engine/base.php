@@ -49,6 +49,10 @@ class BackendAnalyticsBase extends BackendBaseActionIndex
 	}
 
 	/**
+     * TODO:
+     * I believe you can access the request object here, use that to access the
+     * session object and get the prefered session data.
+     *
 	 * Set start and end timestamp needed to collect analytics data
 	 */
 	private function setDates()
