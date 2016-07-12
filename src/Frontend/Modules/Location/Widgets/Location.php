@@ -10,15 +10,10 @@ namespace Frontend\Modules\Location\Widgets;
  */
 
 use Frontend\Core\Engine\Base\Widget as FrontendBaseWidget;
-use Frontend\Core\Engine\Model as FrontendModel;
 use Frontend\Modules\Location\Engine\Model as FrontendLocationModel;
 
 /**
  * This is the location-widget: 1 specific address
- *
- * @author Matthias Mullie <forkcms@mullie.eu>
- * @author Jelmer Snoeck <jelmer@siphoc.com>
- * @author Tijs Verkoyen <tijs@sumocoders.be>
  */
 class Location extends FrontendBaseWidget
 {

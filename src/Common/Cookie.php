@@ -13,8 +13,6 @@ use Frontend\Core\Engine\Model as FrontendModel;
 
 /**
  * This is our extended version of SpoonCookie
- *
- * @author Tijs Verkoyen <tijs@sumocoders.be>
  */
 class Cookie extends \SpoonCookie
 {
@@ -36,6 +34,7 @@ class Cookie extends \SpoonCookie
      * @param bool   $httpOnly Should the cookie only be available through
      *                         HTTP-protocol? If true, the cookie can't be
      *                         accessed by Javascript, ...
+     *
      * @return bool    If set with success, returns true otherwise false.
      */
     public static function set(
@@ -70,7 +69,7 @@ class Cookie extends \SpoonCookie
              for lighttpd you should add:
                  setenv.add-environment = ("HTTPS" => "on")
              */
-            $secure = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on');
+            $secure = (isset($_SERVER['HTTPS']) && mb_strtolower($_SERVER['HTTPS']) == 'on');
         }
 
         // set cookie

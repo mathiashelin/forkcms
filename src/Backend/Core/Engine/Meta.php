@@ -14,8 +14,6 @@ use Backend\Core\Engine\Model as BackendModel;
 
 /**
  * This class represents a META-object
- *
- * @author Tijs Verkoyen <tijs@sumocoders.be>
  */
 class Meta
 {
@@ -99,7 +97,7 @@ class Meta
         }
 
         // set default callback
-        $this->setUrlCallback(
+        $this->setURLCallback(
             'Backend\\Modules\\' . $this->URL->getModule() . '\\Engine\\Model',
             'getURL'
         );
@@ -112,13 +110,20 @@ class Meta
      * Generate an url, using the predefined callback.
      *
      * @param string $URL The base-url to start from.
-     * @return string
+     *
      * @throws Exception When the function does not exist
+     *
+     * @return string
      */
     public function generateURL($URL)
     {
+        $class = $this->callback['class'];
+        if (BackendModel::getContainer()->has($class)) {
+            $class = BackendModel::getContainer()->get($class);
+        }
+
         // validate (check if the function exists)
-        if (!is_callable(array($this->callback['class'], $this->callback['method']))) {
+        if (!is_callable(array($class, $this->callback['method']))) {
             throw new Exception('The callback-method doesn\'t exist.');
         }
 
@@ -137,7 +142,7 @@ class Meta
         }
 
         // get the real url
-        return call_user_func_array(array($this->callback['class'], $this->callback['method']), $parameters);
+        return call_user_func_array(array($class, $this->callback['method']), $parameters);
     }
 
     /**
@@ -149,7 +154,7 @@ class Meta
     {
         // not set so return null
         if (!isset($this->data['description'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -159,13 +164,13 @@ class Meta
     /**
      * Should the description overwrite the default
      *
-     * @return null|boolean
+     * @return null|bool
      */
     public function getDescriptionOverwrite()
     {
         // not set so return null
         if (!isset($this->data['description_overwrite'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -175,13 +180,13 @@ class Meta
     /**
      * Get the current value for the metaId;
      *
-     * @return null|integer
+     * @return null|int
      */
     public function getId()
     {
         // not set so return null
         if (!isset($this->data['id'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -197,7 +202,7 @@ class Meta
     {
         // not set so return null
         if (!isset($this->data['keywords'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -207,13 +212,13 @@ class Meta
     /**
      * Should the keywords overwrite the default
      *
-     * @return null|boolean
+     * @return null|bool
      */
     public function getKeywordsOverwrite()
     {
         // not set so return null
         if (!isset($this->data['keywords_overwrite'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -229,7 +234,7 @@ class Meta
     {
         // not set so return null
         if (!isset($this->data['title'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -239,13 +244,13 @@ class Meta
     /**
      * Should the title overwrite the default
      *
-     * @return null|boolean
+     * @return null|bool
      */
     public function getTitleOverwrite()
     {
         // not set so return null
         if (!isset($this->data['title_overwrite'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -261,7 +266,7 @@ class Meta
     {
         // not set so return null
         if (!isset($this->data['url'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -271,13 +276,13 @@ class Meta
     /**
      * Should the URL overwrite the default
      *
-     * @return null|boolean
+     * @return null|bool
      */
     public function getURLOverwrite()
     {
         // not set so return null
         if (!isset($this->data['url_overwrite'])) {
-            return null;
+            return;
         }
 
         // return value
@@ -360,7 +365,7 @@ class Meta
         $indexValues = array(
             array('value' => 'none', 'label' => Language::getLabel('None')),
             array('value' => 'index', 'label' => 'index'),
-            array('value' => 'noindex', 'label' => 'noindex')
+            array('value' => 'noindex', 'label' => 'noindex'),
         );
         $this->frm->addRadiobutton(
             'seo_index',
@@ -370,7 +375,7 @@ class Meta
         $followValues = array(
             array('value' => 'none', 'label' => Language::getLabel('None')),
             array('value' => 'follow', 'label' => 'follow'),
-            array('value' => 'nofollow', 'label' => 'nofollow')
+            array('value' => 'nofollow', 'label' => 'nofollow'),
         );
         $this->frm->addRadiobutton(
             'seo_follow',
@@ -396,6 +401,7 @@ class Meta
      * Load a specific meta-record
      *
      * @param int $id The id of the record to load.
+     *
      * @throws Exception If no meta-record exists with the provided id
      */
     protected function loadMeta($id)
@@ -425,11 +431,15 @@ class Meta
      * Saves the meta object
      *
      * @param bool $update Should we update the record or insert a new one.
+     *
      * @throws Exception If no meta id was provided.
+     *
      * @return int
      */
     public function save($update = false)
     {
+        $this->validate();
+
         $update = (bool) $update;
 
         // get meta keywords
@@ -470,40 +480,22 @@ class Meta
             $custom = null;
         }
 
-        // build meta
-        $meta['keywords'] = $keywords;
-        $meta['keywords_overwrite'] = $this->frm->getField('meta_keywords_overwrite')->getActualValue();
-        $meta['description'] = $description;
-        $meta['description_overwrite'] = $this->frm->getField('meta_description_overwrite')->getActualValue();
-        $meta['title'] = $title;
-        $meta['title_overwrite'] = $this->frm->getField('page_title_overwrite')->getActualValue();
-        $meta['url'] = $URL;
-        $meta['url_overwrite'] = $this->frm->getField('url_overwrite')->getActualValue();
-        $meta['custom'] = $custom;
-        $meta['data'] = null;
-        if ($this->frm->getField('seo_index')->getValue() != 'none') {
-            $meta['data']['seo_index'] = $this->frm->getField('seo_index')->getValue();
-        }
-        if ($this->frm->getField('seo_follow')->getValue() != 'none') {
-            $meta['data']['seo_follow'] = $this->frm->getField('seo_follow')->getValue();
-        }
-        if (isset($meta['data'])) {
-            $meta['data'] = serialize($meta['data']);
+        //serialize data for save
+        if (!empty($this->data['data'])) {
+            $this->data['data'] = serialize($this->data['data']);
         }
 
+        // build meta
         $db = BackendModel::getContainer()->get('database');
 
-        if ($update) {
-            if ($this->id === null) {
-                throw new Exception('No metaID specified.');
-            }
-            $db->update('meta', $meta, 'id = ?', array($this->id));
+        if ($this->id !== null && $update === true) {
+            $db->update('meta', $this->data, 'id = ?', array($this->id));
 
             return $this->id;
         } else {
-            $id = (int) $db->insert('meta', $meta);
+            unset($this->data['id']);
 
-            return $id;
+            return (int) $db->insert('meta', $this->data);
         }
     }
 
@@ -621,5 +613,13 @@ class Meta
                 $this->data['data']['seo_follow'] = $this->frm->getField('seo_follow')->getValue();
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
     }
 }

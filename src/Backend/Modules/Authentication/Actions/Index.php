@@ -9,7 +9,8 @@ namespace Backend\Modules\Authentication\Actions;
  * file that was distributed with this source code.
  */
 
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Backend\Core\Engine\Base\ActionIndex as BackendBaseActionIndex;
 use Backend\Core\Engine\Authentication as BackendAuthentication;
 use Backend\Core\Engine\Form as BackendForm;
@@ -20,9 +21,6 @@ use Backend\Modules\Users\Engine\Model as BackendUsersModel;
 
 /**
  * This is the index-action (default), it will display the login screen
- *
- * @author Tijs Verkoyen <tijs@sumocoders.be>
- * @author Annelies Van Extergem <annelies.vanextergem@netlash.com>
  */
 class Index extends BackendBaseActionIndex
 {
@@ -61,8 +59,15 @@ class Index extends BackendBaseActionIndex
     private function load()
     {
         $this->frm = new BackendForm(null, null, 'post', true, false);
-        $this->frm->addText('backend_email');
-        $this->frm->addPassword('backend_password');
+        $this->frm
+            ->addText('backend_email')
+            ->setAttribute('placeholder', \SpoonFilter::ucfirst(BL::lbl('Email')))
+            ->setAttribute('type', 'email')
+        ;
+        $this->frm
+            ->addPassword('backend_password')
+            ->setAttribute('placeholder', \SpoonFilter::ucfirst(BL::lbl('Password')))
+        ;
 
         $this->frmForgotPassword = new BackendForm('forgotPassword');
         $this->frmForgotPassword->addText('backend_email_forgot');
@@ -107,9 +112,7 @@ class Index extends BackendBaseActionIndex
             // invalid form-token?
             if ($this->frm->getToken() != $this->frm->getField('form_token')->getValue()) {
                 // set a correct header, so bots understand they can't mess with us.
-                if (!headers_sent()) {
-                    header('400 Bad Request', true, 400);
-                }
+                throw new BadRequestHttpException();
             }
 
             // get the user's id
@@ -156,9 +159,7 @@ class Index extends BackendBaseActionIndex
                     sleep($timeout);
 
                     // set a correct header, so bots understand they can't mess with us.
-                    if (!headers_sent()) {
-                        header('503 Service Unavailable', true, 503);
-                    }
+                    throw new ServiceUnavailableHttpException();
                 } else {
                     // increment and store
                     \SpoonSession::set('backend_last_attempt', time());
@@ -235,7 +236,7 @@ class Index extends BackendBaseActionIndex
                     ->setTo(array($email))
                     ->setReplyTo(array($replyTo['email'] => $replyTo['name']))
                     ->parseHtml(
-                        BACKEND_MODULES_PATH . '/Authentication/Layout/Templates/Mails/ResetPassword.tpl',
+                         '/Authentication/Layout/Templates/Mails/ResetPassword.html.twig',
                         $variables
                     )
                 ;
